@@ -6,6 +6,7 @@ import { ease } from "./V2Kit"
 import { useWindowWidth } from "../hooks/useWindowSize"
 import { V4_NAV, V4_NAV_ITEMS, isSectionActive } from "./V4NavData"
 import type { NavItem, NavKey, NavLeaf } from "./V4NavData"
+import { isV2Path, toggleVersionPath } from "../lib/v2"
 
 // V4's primary nav: a Navan-style mega menu built as a *disclosure* widget, not
 // an ARIA menubar. These are links to pages, so role="menu"/"menuitem" would
@@ -256,6 +257,10 @@ export function V4Nav({ transparent = false }: { transparent?: boolean } = {}) {
                     </nav>
                 )}
                 <div className="v4-nav__actions">
+                    <div className="v4-nav__version" aria-label="Choose site version">
+                        <Link to={isV2Path(pathname) ? toggleVersionPath(pathname) : pathname} aria-current={!isV2Path(pathname) ? "page" : undefined}>V1</Link>
+                        <Link to={isV2Path(pathname) ? pathname : toggleVersionPath(pathname)} aria-current={isV2Path(pathname) ? "page" : undefined}>V2</Link>
+                    </div>
                     {!isCompact && <a href="https://app.miraee.ai">Sign in</a>}
                     <Link to="/book-a-demo" className="v4-nav__cta">Book a demo</Link>
                     {isCompact && (
@@ -317,6 +322,10 @@ export function V4Nav({ transparent = false }: { transparent?: boolean } = {}) {
                                         </div>
                                     ))}
                             </nav>
+                            <div className="v4-nav__version v4-nav__version--sheet" aria-label="Choose site version">
+                                <Link to={isV2Path(pathname) ? toggleVersionPath(pathname) : pathname} aria-current={!isV2Path(pathname) ? "page" : undefined} onClick={() => setMobileOpen(false)}>V1</Link>
+                                <Link to={isV2Path(pathname) ? pathname : toggleVersionPath(pathname)} aria-current={isV2Path(pathname) ? "page" : undefined} onClick={() => setMobileOpen(false)}>V2</Link>
+                            </div>
                             <div className="v4-nav__sheet-foot">
                                 <a href="https://app.miraee.ai" onClick={() => setMobileOpen(false)}>Sign in <span aria-hidden="true">↗</span></a>
                                 <Link to="/book-a-demo" onClick={() => setMobileOpen(false)}>Book a demo</Link>

@@ -1,9 +1,17 @@
 import { lazy, Suspense } from "react"
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom"
 import ScrollToTop from "./components/ScrollToTop"
 import SiteAtmosphere from "./components/SiteAtmosphere"
 import { MiraeeLogo } from "./components/LegalFormKit"
+import { isV2Path } from "./lib/v2"
 import "./pages/V11AlternatingSections.css"
+
+// V2's hero is a plain white background — the ambient orange/maroon orbs are
+// tuned to bleed invisibly into V1's dark video hero, but read as a stray
+// smudge on white, so V2 goes without them.
+function SiteAtmosphereGate() {
+    return isV2Path(useLocation().pathname) ? null : <SiteAtmosphere />
+}
 
 // v1/v1.1/v2/v3 are unrouted (source files kept in src/pages/, not deleted)
 // in case they're needed again. "/" now serves v4.
@@ -58,63 +66,90 @@ export default function App() {
     return (
         <BrowserRouter>
             <ScrollToTop />
-            <SiteAtmosphere />
+            <SiteAtmosphereGate />
             <Suspense fallback={<PageFallback />}>
                 <Routes>
                     <Route path="/" element={<V4Home />} />
                     <Route path="/v4" element={<V4Home />} />
+                    <Route path="/v2" element={<V4Home />} />
                     <Route path="/platform" element={<V4Platform />} />
                     <Route path="/v4/platform" element={<V4Platform />} />
+                    <Route path="/v2/platform" element={<V4Platform />} />
                     <Route path="/solutions" element={<V4Solutions />} />
                     <Route path="/v4/solutions" element={<V4Solutions />} />
+                    <Route path="/v2/solutions" element={<V4Solutions />} />
                     <Route path="/technology" element={<V4Technology />} />
                     <Route path="/v4/technology" element={<V4Technology />} />
+                    <Route path="/v2/technology" element={<V4Technology />} />
                     <Route path="/why-miraee" element={<V4WhyMiraee />} />
                     <Route path="/v4/why-miraee" element={<V4WhyMiraee />} />
+                    <Route path="/v2/why-miraee" element={<V4WhyMiraee />} />
                     <Route path="/company" element={<V4Company />} />
                     <Route path="/v4/company" element={<V4Company />} />
+                    <Route path="/v2/company" element={<V4Company />} />
                     <Route path="/resources" element={<V4Resources />} />
                     <Route path="/v4/resources" element={<V4Resources />} />
+                    <Route path="/v2/resources" element={<V4Resources />} />
                     <Route path="/resources/guides" element={<V4ResourcesGuides />} />
                     <Route path="/v4/resources/guides" element={<V4ResourcesGuides />} />
+                    <Route path="/v2/resources/guides" element={<V4ResourcesGuides />} />
                     <Route path="/resources/life-at-miraee" element={<V4ResourcesLife />} />
                     <Route path="/v4/resources/life-at-miraee" element={<V4ResourcesLife />} />
+                    <Route path="/v2/resources/life-at-miraee" element={<V4ResourcesLife />} />
                     <Route path="/resources/blog" element={<V4ResourcesBlog />} />
                     <Route path="/v4/resources/blog" element={<V4ResourcesBlog />} />
+                    <Route path="/v2/resources/blog" element={<V4ResourcesBlog />} />
                     <Route path="/resources/news" element={<V4ResourcesNews />} />
                     <Route path="/v4/resources/news" element={<V4ResourcesNews />} />
+                    <Route path="/v2/resources/news" element={<V4ResourcesNews />} />
                     <Route path="/resources/calculator" element={<V4Calculator />} />
                     <Route path="/v4/resources/calculator" element={<V4Calculator />} />
+                    <Route path="/v2/resources/calculator" element={<V4Calculator />} />
                     <Route path="/resources/help-center" element={<V4HelpCenter />} />
                     <Route path="/v4/resources/help-center" element={<V4HelpCenter />} />
+                    <Route path="/v2/resources/help-center" element={<V4HelpCenter />} />
                     <Route path="/implementation" element={<V4Implementation />} />
                     <Route path="/v4/implementation" element={<V4Implementation />} />
+                    <Route path="/v2/implementation" element={<V4Implementation />} />
                     <Route path="/integrations" element={<V4Integrations />} />
                     <Route path="/v4/integrations" element={<V4Integrations />} />
+                    <Route path="/v2/integrations" element={<V4Integrations />} />
                     <Route path="/ai-assistant" element={<V4AiAssistant />} />
                     <Route path="/v4/ai-assistant" element={<V4AiAssistant />} />
+                    <Route path="/v2/ai-assistant" element={<V4AiAssistant />} />
                     <Route path="/solutions/employees" element={<V4SolutionEmployees />} />
                     <Route path="/v4/solutions/employees" element={<V4SolutionEmployees />} />
+                    <Route path="/v2/solutions/employees" element={<V4SolutionEmployees />} />
                     <Route path="/solutions/managers" element={<V4SolutionManagers />} />
                     <Route path="/v4/solutions/managers" element={<V4SolutionManagers />} />
+                    <Route path="/v2/solutions/managers" element={<V4SolutionManagers />} />
                     <Route path="/solutions/finance" element={<V4SolutionFinance />} />
                     <Route path="/v4/solutions/finance" element={<V4SolutionFinance />} />
+                    <Route path="/v2/solutions/finance" element={<V4SolutionFinance />} />
                     <Route path="/solutions/travel-leads" element={<V4SolutionTravelLeads />} />
                     <Route path="/v4/solutions/travel-leads" element={<V4SolutionTravelLeads />} />
+                    <Route path="/v2/solutions/travel-leads" element={<V4SolutionTravelLeads />} />
                     <Route path="/solutions/admins" element={<V4SolutionAdmins />} />
                     <Route path="/v4/solutions/admins" element={<V4SolutionAdmins />} />
+                    <Route path="/v2/solutions/admins" element={<V4SolutionAdmins />} />
                     <Route path="/solutions/chros" element={<V4SolutionChros />} />
                     <Route path="/v4/solutions/chros" element={<V4SolutionChros />} />
+                    <Route path="/v2/solutions/chros" element={<V4SolutionChros />} />
                     <Route path="/solutions/business-travel" element={<V4SolutionBusinessTravel />} />
                     <Route path="/v4/solutions/business-travel" element={<V4SolutionBusinessTravel />} />
+                    <Route path="/v2/solutions/business-travel" element={<V4SolutionBusinessTravel />} />
                     <Route path="/solutions/meetings-events" element={<V4SolutionMeetingsEvents />} />
                     <Route path="/v4/solutions/meetings-events" element={<V4SolutionMeetingsEvents />} />
+                    <Route path="/v2/solutions/meetings-events" element={<V4SolutionMeetingsEvents />} />
                     <Route path="/solutions/executive-travel" element={<V4SolutionExecutiveTravel />} />
                     <Route path="/v4/solutions/executive-travel" element={<V4SolutionExecutiveTravel />} />
+                    <Route path="/v2/solutions/executive-travel" element={<V4SolutionExecutiveTravel />} />
                     <Route path="/solutions/global-mobility" element={<V4SolutionGlobalMobility />} />
                     <Route path="/v4/solutions/global-mobility" element={<V4SolutionGlobalMobility />} />
+                    <Route path="/v2/solutions/global-mobility" element={<V4SolutionGlobalMobility />} />
                     <Route path="/solutions/emergency-disruption" element={<V4SolutionEmergencyDisruption />} />
                     <Route path="/v4/solutions/emergency-disruption" element={<V4SolutionEmergencyDisruption />} />
+                    <Route path="/v2/solutions/emergency-disruption" element={<V4SolutionEmergencyDisruption />} />
                     <Route path="/support" element={<Support />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { AnimatePresence, motion } from "framer-motion"
 import { ArrowRight, Users, Building2, Plane } from "lucide-react"
 import { Magnetic } from "../../animations"
 import { Button } from "../../components/ui/button"
 import { AvatarSpotlight } from "./HeroAssistant"
+import { isV2Path } from "../../lib/v2"
 import travelerPhoto from "../../assets/miraee-traveler-hero.png"
 
 // How far into the pin wrapper's extra scroll room (see .v4-hero-video-pin,
@@ -50,6 +51,7 @@ export function HeroVideo() {
     // the pinning has none of that — it's just normal scroll.
     const pinRef = useRef<HTMLDivElement>(null)
     const [scrolled, setScrolled] = useState(false)
+    const noVideo = isV2Path(useLocation().pathname)
     useEffect(() => {
         // Throttled to ~once per frame budget: `scroll` can fire far more
         // than 60 times a second, and calling getBoundingClientRect() (a
@@ -89,21 +91,23 @@ export function HeroVideo() {
 
     return (
         <div className="v4-hero-video-pin" ref={pinRef}>
-        <section className="v4-hero-video">
-            <div className="v4-hero-video__bg" aria-hidden="true">
-                <video
-                    className="v4-hero-video__video"
-                    poster={travelerPhoto}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="auto"
-                >
-                    <source src="/videos/hero-bg.mp4" type="video/mp4" />
-                </video>
-                <div className="v4-hero-video__overlay" />
-            </div>
+        <section className={"v4-hero-video" + (noVideo ? " v4-hero-video--light" : "")}>
+            {!noVideo && (
+                <div className="v4-hero-video__bg" aria-hidden="true">
+                    <video
+                        className="v4-hero-video__video"
+                        poster={travelerPhoto}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="auto"
+                    >
+                        <source src="/videos/hero-bg.mp4" type="video/mp4" />
+                    </video>
+                    <div className="v4-hero-video__overlay" />
+                </div>
+            )}
 
             <div className="v4-shell v4-hero-video__content">
                 {/* mode="wait": the outgoing panel fully exits before the
@@ -117,45 +121,52 @@ export function HeroVideo() {
                     that overlap entirely; the gap between them is small
                     enough (0.35s) not to read as a hard cut. */}
                 <div className="v4-hero-video__stage">
-                    <AnimatePresence mode="wait" initial={false}>
-                        {!scrolled ? (
-                            <motion.div key="copy"
-                                initial={{ opacity: 0, y: 14 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -14, pointerEvents: "none" }}
-                                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
-                                <span className="v4-hero-video__eyebrow">Travel Limitless · Business travel, personalized</span>
-                                <h1 className="v4-hero-video__title">
-                                    A private travel assistant
-                                    <br />
-                                    <em>for every employee.</em>
-                                </h1>
-                                <div className="v4-hero-video__actions">
-                                    <Magnetic>
-                                        <Button asChild size="lg" className="h-auto rounded-xl px-6 py-3.5 text-[15px] font-bold text-white! shadow-[0_10px_28px_rgba(229,86,2,0.35)] hover:text-white! hover:shadow-[0_14px_34px_rgba(229,86,2,0.42)]">
-                                            <Link to="/book-a-demo">Book a demo</Link>
-                                        </Button>
-                                    </Magnetic>
-                                    <Magnetic>
-                                        <Button asChild variant="white" size="lg" className="h-auto rounded-xl px-6 py-3.5 text-[15px] font-bold">
-                                            <a href="#how-it-works">See how it works <ArrowRight size={16} strokeWidth={2.4} /></a>
-                                        </Button>
-                                    </Magnetic>
-                                </div>
-                            </motion.div>
-                        ) : (
-                            <motion.div key="avatar" className="v4-hero-video__avatar"
-                                initial={{ opacity: 0, y: 14 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -14, pointerEvents: "none" }}
-                                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
-                                <AvatarSpotlight />
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                    {noVideo ? (
+                        <div className="v4-hero-video__avatar">
+                            <AvatarSpotlight />
+                        </div>
+                    ) : (
+                        <AnimatePresence mode="wait" initial={false}>
+                            {!scrolled ? (
+                                <motion.div key="copy"
+                                    initial={{ opacity: 0, y: 14 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -14, pointerEvents: "none" }}
+                                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
+                                    <span className="v4-hero-video__eyebrow">Travel Limitless · Business travel, personalized</span>
+                                    <h1 className="v4-hero-video__title">
+                                        A private travel assistant
+                                        <br />
+                                        <em>for every employee.</em>
+                                    </h1>
+                                    <div className="v4-hero-video__actions">
+                                        <Magnetic>
+                                            <Button asChild size="lg" className="h-auto rounded-xl px-6 py-3.5 text-[15px] font-bold text-white! shadow-[0_10px_28px_rgba(229,86,2,0.35)] hover:text-white! hover:shadow-[0_14px_34px_rgba(229,86,2,0.42)]">
+                                                <Link to="/book-a-demo">Book a demo</Link>
+                                            </Button>
+                                        </Magnetic>
+                                        <Magnetic>
+                                            <Button asChild variant="white" size="lg" className="h-auto rounded-xl px-6 py-3.5 text-[15px] font-bold">
+                                                <a href="#how-it-works">See how it works <ArrowRight size={16} strokeWidth={2.4} /></a>
+                                            </Button>
+                                        </Magnetic>
+                                    </div>
+                                </motion.div>
+                            ) : (
+                                <motion.div key="avatar" className="v4-hero-video__avatar"
+                                    initial={{ opacity: 0, y: 14 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -14, pointerEvents: "none" }}
+                                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
+                                    <AvatarSpotlight />
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    )}
                 </div>
             </div>
 
+            {!noVideo && (
             <div className="v4-hero-video__stats" aria-label="Miraee at a glance">
                 {STATS.map(({ icon: Icon, value, label }) => (
                     <span className="v4-hero-video__stat" key={label}>
@@ -164,6 +175,7 @@ export function HeroVideo() {
                     </span>
                 ))}
             </div>
+            )}
         </section>
         </div>
     )
