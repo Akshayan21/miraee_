@@ -1,0 +1,135 @@
+/* Home section 4 — role switcher + one large stage.
+   Tonal ladder, darkest to lightest: section → stage panel → preview surface →
+   message bubbles. Each step is a visible move rather than a 2% wash, which is
+   what made the previous nested-cards version read as mush. */
+
+.persona-showcase {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(28px, 4vw, 64px);
+  align-items: start;
+  margin-top: clamp(40px, 5vw, 64px);
+}
+
+/* ─── Role switcher ─────────────────────────────────────────────────────────── */
+
+.persona-showcase__roles {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.persona-showcase__role {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 100%;
+  /* Comfortably above the 44px minimum for a touch target. */
+  min-height: 96px;
+  padding: 20px 22px 20px 20px;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: padding-left .32s cubic-bezier(.16, 1, .3, 1);
+}
+
+.persona-showcase__role:hover,
+.persona-showcase__role.is-active { padding-left: 28px; }
+
+.persona-showcase__role:focus-visible {
+  outline: 2px solid #ff8a52;
+  outline-offset: -3px;
+}
+
+/* The moving marker is the only lit surface, so the active role is obvious
+   without needing a filled card. */
+.persona-showcase__marker {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-left: 3px solid #ff8a52;
+  background: linear-gradient(90deg, rgba(255, 138, 82, 0.14), rgba(255, 138, 82, 0));
+}
+
+.persona-showcase__role-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255, 250, 246, 0.5);
+  transition: color .25s ease;
+}
+
+.persona-showcase__role.is-active .persona-showcase__role-label { color: #ff8a52; }
+
+.persona-showcase__role-headline {
+  font-size: clamp(16px, 1.4vw, 19px);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -.015em;
+  color: rgba(255, 250, 246, 0.62);
+  transition: color .25s ease;
+}
+
+.persona-showcase__role:hover .persona-showcase__role-headline,
+.persona-showcase__role.is-active .persona-showcase__role-headline { color: #fffaf6; }
+
+/* ─── Stage ─────────────────────────────────────────────────────────────────── */
+
+.persona-showcase__stage {
+  /* Height is reserved so swapping roles never shifts the page. */
+  min-height: 420px;
+}
+
+.persona-showcase__panel {
+  padding: clamp(22px, 2.4vw, 30px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  /* Lifted panel with a refraction lip along the top edge. */
+  background: linear-gradient(168deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.022));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 26px 60px -30px rgba(18, 3, 6, 0.8);
+}
+
+.persona-showcase__body {
+  margin: 0 0 20px;
+  max-width: 54ch;
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(255, 250, 246, 0.72) !important;
+}
+
+.persona-showcase__link {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ff8a52 !important;
+  text-decoration: none;
+}
+
+.persona-showcase__link:hover { text-decoration: underline; }
+
+/* Size only — the dark palette now travels with the component's tone. */
+.persona-showcase .persona-exp { min-height: 264px; }
+.persona-showcase .persona-exp__line { font-size: 14px; }
+
+@media (max-width: 900px) {
+  .persona-showcase { grid-template-columns: 1fr; gap: 24px; }
+  .persona-showcase__stage { min-height: 0; }
+  .persona-showcase__role { min-height: 76px; padding: 16px 16px 16px 14px; }
+  .persona-showcase__role:hover,
+  .persona-showcase__role.is-active { padding-left: 20px; }
+  .persona-showcase__role-headline { font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .persona-showcase__role,
+  .persona-showcase__role-label,
+  .persona-showcase__role-headline { transition: none; }
+}

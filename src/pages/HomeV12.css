@@ -1,0 +1,165 @@
+/* Hero card tokens — scoped to .v12-hero so it renders the same regardless
+   of the global light/dark theme toggle or which page embeds it. */
+.v12-hero{
+  --v12-bg: #FFFFFF;           /* white hero card */
+  --v12-surface: #F7F3EF;      /* soft raised card surface inside the hero */
+  --v12-ink: #170A0C;          /* near-black ink */
+  --v12-muted: rgba(23,10,12,0.6);
+  --v12-line: rgba(23,10,12,0.12);
+  --v12-accent: #E55602;       /* brand orange */
+  --v12-accent-ink: #FBF6F2;
+  font-family: var(--font-sans);
+  position: relative;
+  max-width: 1280px;
+  margin: 0 auto;
+  color: var(--v12-ink);
+  overflow: hidden;
+  padding: 132px 24px 72px;
+  text-align: center;
+}
+
+/* Kill the flat opaque background V11AlternatingSections.css forces onto the
+   first section — it painted a solid white box over the whole hero, from the
+   nav down to the dashboard mockup, hiding the page's own gradient behind it. */
+.v11-site > section.v12-hero:first-of-type{
+  background: transparent !important;
+}
+
+.v12-hero__row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(32px, 5vw, 80px);
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.v12-hero__copy{ flex: 1 1 480px; min-width: 0; }
+
+.v12-hero__kicker{
+  display: inline-block;
+  margin-bottom: 14px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--v12-accent);
+}
+
+.v12-hero__proof{
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  margin-top: 26px;
+  font-size: 12px;
+  color: var(--v12-muted);
+}
+.v12-hero__proof i{ width: 3px; height: 3px; border-radius: 50%; background: var(--v12-line); }
+
+.v12-hero__chips{
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 16px;
+}
+.v12-hero__chips span{
+  padding: 5px 12px;
+  border: 1px solid var(--v12-line);
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--v12-muted);
+}
+
+.v12-hero__media{ flex: 1 1 420px; max-width: 520px; }
+.v12-hero__media img{ display: block; width: 100%; border-radius: 24px; box-shadow: 0 30px 70px rgba(23,10,12,.14); }
+
+.el-site .v12-hero h1,
+.v1-type-page .v12-hero h1{
+  margin: 0;
+  max-width: 620px;
+  text-align: left;
+  font-size: clamp(2.6rem, 4.4vw, 3.8rem);
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  color: var(--v12-ink);
+  font-family: var(--font-heading) !important;
+}
+.v12-hero h1 em{
+  font-family: var(--font-serif, "DM Serif Display", "Cardo", serif);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.v12-hero__copy > p{
+  margin: 22px 0 0;
+  max-width: 520px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--v12-muted);
+}
+
+.v12-hero__actions{
+  display: flex; align-items: center; justify-content: flex-start; gap: 12px;
+  margin-top: 30px; flex-wrap: wrap;
+}
+.v12-btn{
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 24px;
+  border-radius: 100px;
+  font-size: 14px; font-weight: 700;
+  text-decoration: none;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.v12-btn--primary{ background: var(--v12-accent); color: var(--v12-accent-ink); }
+.v12-btn--primary:hover{ transform: translateY(-1px); box-shadow: 0 12px 28px rgba(229,86,2,.32); }
+.v12-btn--ghost{ background: transparent; color: var(--v12-ink); border: 1px solid rgba(23,10,12,0.22); }
+.v12-btn--ghost:hover{ background: rgba(23,10,12,0.05); }
+
+.v12-preview{
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin: clamp(120px, 16vw, 200px) auto 0;
+  max-width: 1100px;
+  padding: clamp(20px, 4vw, 48px);
+  min-height: 380px;
+}
+.v12-preview__main{
+  width: 100%;
+  max-width: 720px;
+  display: block;
+  border-radius: 16px;
+  box-shadow: 0 30px 70px rgba(23,10,12,.14);
+}
+.v12-preview__floating{
+  flex-shrink: 0;
+  width: clamp(220px, 32vw, 320px);
+  margin-left: clamp(-120px, -13vw, -68px);
+}
+
+@media (max-width: 900px){
+  .v12-preview__floating{ width: clamp(160px, 30vw, 220px); margin-left: clamp(-72px, -10vw, -44px); }
+}
+
+@media (max-width: 900px){
+  .v12-hero__row{ flex-direction: column; text-align: center; }
+  .el-site .v12-hero h1,
+  .v1-type-page .v12-hero h1{ margin: 0 auto; text-align: center; }
+  .v12-hero__copy > p{ margin: 22px auto 0; text-align: center; }
+  .v12-hero__actions{ justify-content: center; }
+  .v12-hero__media{ order: -1; max-width: 420px; }
+}
+
+@media (max-width: 640px){
+  .v12-hero{ padding: 108px 16px 56px; }
+  .el-site .v12-hero h1,
+  .v1-type-page .v12-hero h1{ font-size: clamp(2.1rem, 9vw, 2.8rem); }
+  .v12-hero__copy > p{ font-size: 15px; }
+  .v12-preview{ padding: 0; margin-top: 90px; min-height: 0; }
+  .v12-preview__floating{ display: none; }
+}
+
+@media (max-width: 380px){
+  .v12-hero__actions{ flex-direction: column; width: 100%; }
+  .v12-btn{ width: 100%; justify-content: center; }
+}

@@ -1,0 +1,147 @@
+/* Persona placeholder experience — scripted stage.
+   Tokens are read from the surrounding section so the same component reads
+   correctly on the light (For Teams) and dark (Home cards) surfaces. */
+
+.persona-exp {
+  --pe-ink: var(--text);
+  --pe-muted: rgba(var(--text-rgb), 0.55);
+  --pe-line: rgba(var(--text-rgb), 0.12);
+  --pe-surface: rgba(var(--text-rgb), 0.035);
+  --pe-agent-bg: rgba(var(--text-rgb), 0.06);
+  --pe-traveler-bg: rgba(229, 86, 2, 0.12);
+  --pe-accent: #e55602;
+
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--pe-line);
+  border-radius: 18px;
+  background: var(--pe-surface);
+  /* Space is reserved up front so a line appearing never shifts the layout. */
+  min-height: 232px;
+  padding: 14px 16px 16px;
+  box-sizing: border-box;
+}
+
+.persona-exp--compact { min-height: 196px; border-radius: 16px; padding: 12px 14px 14px; }
+
+/* Flush: the host card is the only surface. No border, no inset, no header bar
+   duplicating a role name the host already prints. */
+.persona-exp--flush {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  padding: 0;
+  min-height: 0;
+}
+
+/* Dark surfaces declare themselves via the `tone` prop, so the palette travels
+   with the component instead of depending on the host page's class. */
+.persona-exp--dark {
+  --pe-ink: #fffaf6;
+  --pe-surface: rgba(8, 2, 3, 0.34);
+  --pe-line: rgba(255, 255, 255, 0.12);
+  --pe-agent-bg: rgba(255, 255, 255, 0.1);
+  --pe-traveler-bg: rgba(255, 138, 82, 0.22);
+  --pe-muted: rgba(255, 250, 246, 0.62);
+  --pe-accent: #ff8a52;
+}
+
+/* Bubbles are divs/spans, so page-level p/small colour rules never reach them. */
+.persona-exp--dark .persona-exp__line,
+.persona-exp--dark .persona-exp__line span { color: var(--pe-ink); }
+
+.persona-exp__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--pe-line);
+}
+
+.persona-exp__dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--pe-accent);
+  flex-shrink: 0;
+}
+
+.persona-exp__avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1.5px solid var(--pe-accent);
+}
+
+.persona-exp__role {
+  font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--pe-accent);
+}
+
+/* The doc keeps illustrative content clearly labelled as illustrative. */
+.persona-exp__tag {
+  margin-left: auto;
+  font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--pe-muted);
+}
+
+.persona-exp__thread { display: flex; flex-direction: column; gap: 8px; }
+
+.persona-exp__line {
+  max-width: 88%;
+  padding: 10px 13px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--pe-ink);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity .26s ease-out, transform .26s ease-out;
+}
+.persona-exp__line.is-in { opacity: 1; transform: none; }
+
+.persona-exp__line--agent {
+  align-self: flex-start;
+  background: var(--pe-agent-bg);
+  border-bottom-left-radius: 5px;
+}
+
+.persona-exp__line--traveler {
+  align-self: flex-end;
+  background: var(--pe-traveler-bg);
+  border-bottom-right-radius: 5px;
+  font-weight: 600;
+}
+
+/* Typing indicator */
+.persona-exp__typing { display: flex; gap: 4px; align-self: flex-start; padding: 10px 13px; }
+.persona-exp__typing i {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--pe-muted);
+  animation: pe-bounce 1.1s ease-in-out infinite;
+}
+.persona-exp__typing i:nth-child(2) { animation-delay: .14s; }
+.persona-exp__typing i:nth-child(3) { animation-delay: .28s; }
+
+@keyframes pe-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: .5; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+/* Screen-reader transcript: the animation is decorative, this is the content. */
+.persona-exp__sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Motion off: every line is already on screen, so drop the transitions. */
+@media (prefers-reduced-motion: reduce) {
+  .persona-exp__line { opacity: 1; transform: none; transition: none; }
+  .persona-exp__typing { display: none; }
+  .persona-exp__typing i { animation: none; }
+}

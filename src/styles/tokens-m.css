@@ -1,0 +1,18 @@
+/* The `--m-*` design tokens, shared by V2 (HomeV2Light.css) and V4 (V4.css).
+   Every color is an alias onto the global `--section-*` roles defined in
+   index.css, so both versions inherit the brand palette and stay in step with
+   any theme change. Only the two layout values below are original. */
+
+:root {
+  --m-paper: var(--section-canvas);
+  --m-surface: var(--section-surface);
+  --m-soft: var(--section-tint);
+  --m-maroon: var(--section-dark);
+  --m-ink: var(--section-ink);
+  --m-orange-brand: var(--section-brand);
+  --m-orange: var(--section-brand-strong);
+  --m-muted: var(--section-muted);
+  --m-line: var(--section-line);
+  --m-width: 1160px;
+  --m-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}

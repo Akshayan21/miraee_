@@ -1,0 +1,82 @@
+/* Final V2 surface layer: every route follows light hero, then dark/light bands. */
+.m-site main > section:first-child,
+.m-site main > section:nth-of-type(odd):not(:first-child) {
+  background-color: var(--m-paper);
+  color: var(--m-ink);
+}
+
+.m-site main > section:nth-of-type(even) {
+  width: 100%;
+  padding-inline: max(24px, calc((100% - var(--m-width)) / 2));
+  background: radial-gradient(circle at 88% 8%, rgba(229, 86, 2, .2), transparent 32%), #310a10;
+  color: #fffaf6;
+}
+
+.m-site main > section:nth-of-type(even) :is(h1, h2, h3, h4, strong, b, dt, dd, li) {
+  color: #fffaf6;
+}
+
+.m-site main > section:nth-of-type(even) :is(p, small) {
+  color: rgba(255, 255, 255, .68);
+}
+
+.m-site main > section:nth-of-type(even) .m-edrow__value {
+  color: rgba(255, 255, 255, .74);
+}
+
+.m-site main > section:nth-of-type(even) .m-edrow__win {
+  color: #ff8a52;
+}
+
+.m-site main > section:nth-of-type(even) :is(.m-eyebrow, [class$="__label"], [class$="__num"], [class$="__index"]) {
+  color: #ffad89 !important;
+}
+
+.m-site main > section:nth-of-type(even) :is(.m-section__head, .pv2-heading, .rv2-section-head) > p:last-child {
+  border-left-color: rgba(255, 173, 137, .48);
+}
+
+.m-site main > section:nth-of-type(even) :is(
+  .m-chapter, .m-list__row, .m-complete__item, .m-role, .m-personas__item, .m-pain,
+  .m-faq__item, .m-edrow, .m-mini__row, .m-resource-card, .m-callout,
+  .m-splitfacts > div, .m-roletabs button, .m-rolepanel, .m-flow__step,
+  .pv2-context__item, .pv2-capability, .pv2-agent-system, .pv2-interoperability,
+  .pv2-generation__grid > div, .pv2-surface, .rv2-guide, .rv2-calculator,
+  .m-story__text
+) {
+  border-color: rgba(255, 255, 255, .15) !important;
+  background-color: rgba(255, 255, 255, .055) !important;
+}
+
+.m-site main > section:nth-of-type(even) :is(.m-faq__q, .m-roletabs button, a:not(.m-nav__cta)) {
+  color: #fffaf6;
+}
+
+.m-site main > section:nth-of-type(even) :is(.m-table, .m-mini, .m-edrows, .m-rowlist, .m-faq) {
+  border-color: rgba(255, 255, 255, .15);
+}
+
+/* The hero is always explicitly light, regardless of its page-specific artwork. */
+.m-site main > section:first-child {
+  background-color: var(--m-paper) !important;
+  color: var(--m-ink);
+}
+
+/* Reset legacy dark bands when their alternating position is light. */
+.m-site main > section:nth-of-type(odd):not(:first-child):is(
+  .m-security, .m-iconband, .m-brandwall, .rv2-calculators, .m-section--dark
+) :is(h2, h3, h4, strong, b, p, small, li, a) {
+  color: var(--m-ink);
+}
+
+.m-site main > section:nth-of-type(odd):not(:first-child):is(
+  .m-security, .m-iconband, .m-brandwall, .rv2-calculators, .m-section--dark
+) p {
+  color: var(--m-muted);
+}
+
+.m-site main > section:nth-of-type(odd):not(:first-child):is(
+  .m-security, .m-iconband, .m-brandwall, .rv2-calculators, .m-section--dark
+) .m-eyebrow {
+  color: var(--m-orange) !important;
+}
