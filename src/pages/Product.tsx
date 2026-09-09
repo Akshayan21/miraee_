@@ -1,5 +1,5 @@
-import { motion, useInView, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion"
-import { useRef, useEffect, useState, useCallback, useLayoutEffect } from "react"
+import { motion, useInView, useMotionValue, useSpring, AnimatePresence } from "framer-motion"
+import { useRef, useEffect, useState, useCallback } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { SiteNav, V1Footer } from "../components/LegalFormKit"
@@ -7,7 +7,6 @@ import V11Hero from "../components/V11Hero"
 import "./HomeV12.css"
 import V11PageImage from "../components/V11PageImage"
 import productPageImg from "../../images/weavy/v1/v1-home-hero.webp"
-import miraeeFavicon from "../assets/favicon-180.png"
 import financeDashboard from "../assets/ui-admin-dashboard.png"
 import miraeeMobileUi from "../assets/miraee-mobile-phone.png"
 gsap.registerPlugin(ScrollTrigger)
@@ -24,14 +23,6 @@ const T = {
     accent: "var(--accent-strong)",
 }
 
-// ─── GSAP (npm) ──────────────────────────────────────────────────────────────
-function useGSAP(cb: (gsap: any, ST: any) => void | (() => void), deps: any[] = []) {
-    useEffect(() => {
-        const cleanup = cb(gsap, ScrollTrigger)
-        return () => { if (typeof cleanup === "function") cleanup() }
-    }, deps)
-}
-
 // ─── Mouse parallax ──────────────────────────────────────────────────────────
 function useWindowWidth() {
     const [w, setW] = useState(typeof window !== "undefined" ? window.innerWidth : 1440)
@@ -41,23 +32,6 @@ function useWindowWidth() {
         return () => window.removeEventListener("resize", fn)
     }, [])
     return w
-}
-
-function useMouseParallax() {
-    const x = useMotionValue(0)
-    const y = useMotionValue(0)
-    const sx = useSpring(x, { stiffness: 60, damping: 18 })
-    const sy = useSpring(y, { stiffness: 60, damping: 18 })
-    useEffect(() => {
-        if (typeof window === "undefined") return
-        const h = (e: MouseEvent) => {
-            x.set((e.clientX - window.innerWidth / 2) * 0.04)
-            y.set((e.clientY - window.innerHeight / 2) * 0.04)
-        }
-        window.addEventListener("mousemove", h)
-        return () => window.removeEventListener("mousemove", h)
-    }, [])
-    return { x: sx, y: sy }
 }
 
 // ─── Ripple hook ─────────────────────────────────────────────────────────────
@@ -157,25 +131,6 @@ function useMagnet(strength = 0.35) {
 }
 
 // ─── Scroll counter ───────────────────────────────────────────────────────────
-function useScrollCounter(target: number, suffix = "", decimals = 0) {
-    const ref = useRef<HTMLSpanElement>(null)
-    const inView = useInView(ref, { once: true, amount: 0.5 })
-    useEffect(() => {
-        if (ref.current) ref.current.textContent = (decimals > 0 ? target.toFixed(decimals) : Math.round(target)) + suffix
-    }, [])
-    useGSAP((gsap) => {
-        if (!inView || !ref.current) return
-        const obj = { val: 0 }
-        gsap.to(obj, {
-            val: target, duration: 1.8, ease: "power2.out",
-            onUpdate: () => {
-                if (ref.current) ref.current.textContent = (decimals > 0 ? obj.val.toFixed(decimals) : Math.round(obj.val)) + suffix
-            }
-        })
-    }, [inView])
-    return ref
-}
-
 // ─── Section label ────────────────────────────────────────────────────────────
 function Label({ text }: { text: string }) {
     return (
@@ -283,7 +238,7 @@ function PersonalisationEngine() {
 }
 
 // ─── 2.4b SIX CAPABILITIES — DEEP DIVES ───────────────────────────────────────
-function CapabilityCard({ cap, index, open, onToggle }: { cap: any; index: number; open: boolean; onToggle: () => void }) {
+function CapabilityCard({ cap, index: _index, open, onToggle }: { cap: any; index: number; open: boolean; onToggle: () => void }) {
     return (
         <div style={{ background: "var(--surface)", borderRadius: 20, border: `1px solid ${T.mutedLight}`, overflow: "hidden" }}>
             <button onClick={onToggle} aria-expanded={open}

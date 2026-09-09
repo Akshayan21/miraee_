@@ -1,5 +1,5 @@
-import { motion, useMotionValue, useSpring, useTransform, useInView, AnimatePresence } from "framer-motion"
-import { useRef, useEffect, useState, useCallback } from "react"
+import { motion, useInView, AnimatePresence } from "framer-motion"
+import { useRef, useEffect, useState } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { SiteNav, V1Footer } from "../components/LegalFormKit"
@@ -84,7 +84,7 @@ function SolutionsHero() {
     const heroRef = useRef<HTMLDivElement>(null)
     const heroInnerRef = useRef<HTMLDivElement>(null)
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!heroRef.current || !heroInnerRef.current) return
         gsap.to(heroInnerRef.current, { y: -160, ease: "none",
             scrollTrigger: { trigger: heroRef.current, start: "top top", end: "bottom top", scrub: 1.5 } })
@@ -92,7 +92,6 @@ function SolutionsHero() {
 
     const line1 = ["Built", "for", "Everyone"]
     const line2 = ["Behind", "the", "Journey."]
-    const allWords = [...line1, ...line2]
     const roles = ["Employees", "Finance", "Admins", "Travel Leads", "Managers"]
     const floatPos = [
         { top: "16%", left: "7%" }, { top: "74%", left: "5%" },
@@ -436,7 +435,7 @@ function BySize() {
           features: ["Multi-region support", "Advanced MICE", "Consolidated reporting", "API access"] },
     ]
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!sectionRef.current) return
         const cards = sectionRef.current.querySelectorAll(".size-card")
         gsap.fromTo(cards, { y: 70, opacity: 0, scale: 0.95 },
@@ -459,7 +458,7 @@ function BySize() {
                     </div>
                 </Reveal>
                 <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: 20 }}>
-                    {sizes.map((size, i) => (
+                    {sizes.map((size) => (
                         <motion.div key={size.label} className="size-card"
                             whileHover={{ y: -8, boxShadow: "0 20px 60px rgba(var(--text-rgb),0.1)" }}
                             style={{ background: "var(--surface)", borderRadius: 20, overflow: "hidden", border: "1px solid rgba(var(--text-rgb),0.06)" }}>
@@ -513,7 +512,7 @@ function ByUseCase() {
           body: "Cancellations, delays and reroutes are managed proactively through a single chat. The best alternative is coordinated and confirmed before the traveler is stranded." },
     ]
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!sectionRef.current) return
         const hd = sectionRef.current.querySelector(".uc-heading")
         if (hd) {
@@ -551,7 +550,7 @@ function ByUseCase() {
                     </h2>
                 </div>
                 <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr 1fr" : "repeat(3, 1fr)", gap: 14 }}>
-                    {cases.map((c, i) => (
+                    {cases.map((c) => (
                         <motion.div key={c.num} className="uc-card"
                             whileHover={{ borderColor: c.emergency ? "rgba(229,86,2,0.6)" : "rgba(var(--text-rgb),0.14)", y: -4 }}
                             style={{
@@ -900,7 +899,7 @@ function DutyOfCare() {
         { icon: ["M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 0 2-2h2a2 2 0 0 0 2 2", "M9 12h6M9 16h4"], title: "Audit-ready records", desc: "A full trail of every itinerary and response." },
     ]
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!sectionRef.current) return
         const hd = sectionRef.current.querySelector(".doc-heading")
         if (hd) {

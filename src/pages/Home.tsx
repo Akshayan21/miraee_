@@ -374,9 +374,7 @@ function Hero() {
     const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end end"] })
     const sp = useSpring(scrollYProgress, { stiffness: 110, damping: 24, restDelta: 0.0005 })
     // Headline block scales up, glides to viewport center, then fades out
-    const centerDx = w >= 1408 ? 276 : w * 0.19
     const hScale = useTransform(sp, [0.05, 0.85], [1, isMobile ? 1.25 : 1.6])
-    const hX = useTransform(sp, [0.05, 0.6], [0, isMobile || isTablet ? 0 : centerDx])
     const hY = useTransform(sp, [0.05, 0.6], [0, 36])
     const hOpacity = useTransform(sp, [0.68, 0.94], [1, 0])
     // Supporting UI bows out first
@@ -388,18 +386,11 @@ function Hero() {
     const my = useMotionValue(0)
     const blobPX = useSpring(mx, { stiffness: 50, damping: 20 })
     const blobPY = useSpring(my, { stiffness: 50, damping: 20 })
-    // Whole hero leans toward the cursor like a physical stage
-    const stageRotY = useTransform(blobPX, [-24, 24], [-2.2, 2.2])
-    const stageRotX = useTransform(blobPY, [-24, 24], [2.2, -2.2])
     // Hover clip-path reveal: dark layer follows the cursor over the text block
     const textRef = useRef<HTMLDivElement>(null)
-    const hx = useMotionValue(0)
-    const hy = useMotionValue(0)
     const hrTarget = useMotionValue(0)
-    const hr = useSpring(hrTarget, { stiffness: 180, damping: 22 })
-    const revealClip = useTransform([hx, hy, hr] as any, (vals: number[]) => `circle(${vals[2]}px at ${vals[0]}px ${vals[1]}px)`)
     // Sequence: intro cover opens -> board letters roll into place
-    const [go, setGo] = useState(false)
+    const [, setGo] = useState(false)
     useEffect(() => {
         if (typeof window === "undefined") return
         if ((window as any).__miraeeIntroDone) { setGo(true); return }
@@ -922,7 +913,7 @@ function Capabilities() {
                         <StaggerWords text="One platform for" /><br /><StaggerWords text="the whole journey." delay={0.15} />
                     </h2>
                     <div style={{ borderTop: "1px solid " + T.border }}>
-                        {CAPS.map((cap, i) => (
+                        {CAPS.map((cap) => (
                             <div key={cap.num} style={{ position: "relative", borderBottom: "1px solid " + T.border, padding: "20px 0 20px 16px" }}>
                                 <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 2, background: cap.accent, borderRadius: 2 }} />
                                 <p style={{ fontSize: 11, fontFamily: "var(--font-sans)", fontWeight: 700, color: cap.accent, letterSpacing: "0.1em", margin: "0 0 6px" }}>{cap.num}</p>

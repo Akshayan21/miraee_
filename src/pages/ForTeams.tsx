@@ -255,7 +255,6 @@ function RoleViews() {
     const [active, setActive] = useState(0)
     const reduce = useReducedMotion()
     const role = ROLES[active]
-    const [before, after] = splitShift(role.shift)
     const railRef = useRef<HTMLDivElement>(null)
     const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
     // Only the stage swap should reserve height; the first paint must not.

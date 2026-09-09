@@ -167,8 +167,8 @@ export function SixViews({ roles, isMobile }: { roles: SixViewRole[]; isMobile: 
     }
 
     const roleVideo = role.slug === "finance" ? financeVideo : role.slug === "admins" ? adminVideo : null
-    const [videoMuted, setVideoMuted] = useState(true)
-    const [showVideo, setShowVideo] = useState<Record<string, boolean>>({ finance: true, admins: true })
+    const [videoMuted] = useState(true)
+    const [showVideo] = useState<Record<string, boolean>>({ finance: true, admins: true })
     const isVideoMode = Boolean(roleVideo && (showVideo[role.slug] ?? true))
     const stageVideoRef = useRef<HTMLVideoElement>(null)
 

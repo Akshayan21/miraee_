@@ -125,7 +125,7 @@ function TheShift() {
     const sectionRef = useRef<HTMLDivElement>(null)
     const rowsRef = useRef<HTMLDivElement>(null)
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!rowsRef.current) return
         const rows = rowsRef.current.querySelectorAll(".shift-row")
         gsap.fromTo(rows, { y: 50, opacity: 0 },
@@ -243,7 +243,7 @@ function SideBySide() {
     const isTablet = w < 1024
     const sectionRef = useRef<HTMLElement>(null)
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!sectionRef.current) return
         const blocks = sectionRef.current.querySelectorAll(".compare-block")
         gsap.fromTo(blocks, { y: 50, opacity: 0 },
@@ -349,7 +349,7 @@ function Switching() {
     const isTablet = w < 1024
     const sectionRef = useRef<HTMLDivElement>(null)
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!sectionRef.current) return
         const steps = sectionRef.current.querySelectorAll(".switch-step")
         gsap.fromTo(steps, { y: 46, opacity: 0 },
@@ -398,7 +398,7 @@ function WhyCTA() {
     const isTablet = w < 1024
     const sectionRef = useRef<HTMLElement>(null)
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!sectionRef.current) return
         gsap.fromTo(sectionRef.current.querySelector(".cta-inner"), { opacity: 0, y: 40 },
             { opacity: 1, y: 0, duration: 0.8, ease: "power3.out",

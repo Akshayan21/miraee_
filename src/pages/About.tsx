@@ -109,11 +109,6 @@ const principles = [
     ["04", "The traveler is the test", "If the trip was not easier for the person taking it, nothing else counts."],
 ]
 
-// Doc section 1 — Trust strip. 125M+ is always attributed to Mondee per the
-// stat table.
-const trustStrip = ["23 companies", "3 platforms", "500+ airlines", "2M+ hotels", "125M+ travelers reached through Mondee"]
-
-
 function StoryPanel({ eyebrow, heading, paragraphs, closing, markLines, reverse }: {
     eyebrow: string; heading: React.ReactNode; paragraphs: string[]; closing?: string; markLines: string[]; reverse?: boolean
 }) {
@@ -184,7 +179,7 @@ function TabhiGroup() {
     const isMobile = w < 768
     const sectionRef = useRef<HTMLDivElement>(null)
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!sectionRef.current) return
         const cards = sectionRef.current.querySelectorAll(".tabhi-card")
         gsap.fromTo(cards, { y: 60, opacity: 0, scale: 0.96 },
@@ -240,7 +235,7 @@ function TheAdvantage() {
     const sectionRef = useRef<HTMLElement>(null)
     const gridRef = useRef<HTMLDivElement>(null)
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!sectionRef.current) return
         const hd = sectionRef.current.querySelector(".adv-heading")
         if (hd) {
@@ -305,7 +300,7 @@ function HowWeBuild() {
     const isMobile = w < 768
     const sectionRef = useRef<HTMLDivElement>(null)
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!sectionRef.current) return
         const cards = sectionRef.current.querySelectorAll(".principle-card")
         gsap.fromTo(cards, { y: 60, opacity: 0, clipPath: "inset(0 0 30% 0)" },

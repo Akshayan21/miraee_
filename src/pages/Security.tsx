@@ -155,7 +155,7 @@ function Certifications() {
         { label: "Audit logs", status: "Every agent action" },
     ]
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!sectionRef.current) return
         const cards = sectionRef.current.querySelectorAll(".cert-card")
         gsap.fromTo(cards, { y: 50, opacity: 0 },
@@ -204,7 +204,7 @@ function DataResidency() {
         { code: "IN", name: "India" },
     ]
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!sectionRef.current) return
         const cards = sectionRef.current.querySelectorAll(".region-card")
         gsap.fromTo(cards, { y: 50, opacity: 0, scale: 0.96 },
@@ -250,7 +250,7 @@ function AIGovernance() {
     const sectionRef = useRef<HTMLElement>(null)
     const headRef = useRef<HTMLDivElement>(null)
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!sectionRef.current || !headRef.current) return
         const wds = headRef.current.querySelectorAll(".gov-w")
         gsap.fromTo(wds, { y: "110%", opacity: 0 },
@@ -420,7 +420,7 @@ function AccessControl() {
     const isTablet = w < 1024
     const sectionRef = useRef<HTMLElement>(null)
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!sectionRef.current) return
         const cards = sectionRef.current.querySelectorAll(".access-card")
         gsap.fromTo(cards, { y: 40, opacity: 0 },
@@ -461,7 +461,7 @@ function Reliability() {
     const isTablet = w < 1024
     const sectionRef = useRef<HTMLElement>(null)
 
-    useGSAP((gsap, ST) => {
+    useGSAP((gsap, _ST) => {
         if (!sectionRef.current) return
         const cards = sectionRef.current.querySelectorAll(".ops-card")
         gsap.fromTo(cards, { y: 40, opacity: 0 },

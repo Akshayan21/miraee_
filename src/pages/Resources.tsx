@@ -1,4 +1,4 @@
-﻿import { motion, useInView, AnimatePresence } from "framer-motion"
+﻿import { motion } from "framer-motion"
 import { useRef, useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import gsap from "gsap"
@@ -35,18 +35,6 @@ function useWindowWidth() {
     return w
 }
 
-function Reveal({ children, delay = 0, direction = "up" }: { children: React.ReactNode; delay?: number; direction?: "up" | "left" | "right" | "none" }) {
-    const ref = useRef<HTMLDivElement>(null)
-    const inView = useInView(ref, { once: true, amount: 0.2 })
-    const initMap: Record<string, any> = { up: { y: 48, opacity: 0 }, left: { x: -48, opacity: 0 }, right: { x: 48, opacity: 0 }, none: { opacity: 0 } }
-    const init = initMap[direction]
-    return (
-        <motion.div ref={ref} initial={init} animate={inView ? { x: 0, y: 0, opacity: 1 } : init} transition={{ duration: 0.75, delay, ease: [0.16, 1, 0.3, 1] }}>
-            {children}
-        </motion.div>
-    )
-}
-
 function SmoothScrollStyle() {
     useEffect(() => {
         if (typeof document === "undefined") return
@@ -73,15 +61,6 @@ function ScrollBar() {
     }, [])
     return <motion.div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 3, background: T.orange, transformOrigin: "left", scaleX: progress, zIndex: 200 }} />
 }
-
-// --- HERO ----------------------------------------------------------------
-const wordVariants = {
-    hidden: { y: "110%", opacity: 0, rotateX: -45 },
-    visible: (i: number) => ({ y: "0%", opacity: 1, rotateX: 0,
-        transition: { duration: 0.75, delay: 0.3 + i * 0.05, ease: "easeOut" as const } }),
-}
-
-
 
 // --- GUIDES & REPORTS ------------------------------------------------------
 const GUIDES: [string, string][] = [
