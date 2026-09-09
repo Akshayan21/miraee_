@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react"
 import type { ReactNode } from "react"
 import { motion, useReducedMotion } from "framer-motion"
+import { useLocation } from "react-router-dom"
+import { isV2Path } from "../../lib/v2"
 import avatarImg from "../../assets/Avatar.png"
 
 // The right side of the homepage hero — a live-feeling voice/chat card.
@@ -191,6 +193,102 @@ function fillerFor(text: string): string {
     if (/receipt|expense|reimburse/.test(t)) return "Coding the expense…"
     if (/trip|flight|book|fly|hotel|travel|singapore|meeting/.test(t)) return "Building the itinerary…"
     return "Thinking…"
+}
+
+// ─── V2 hero demo ───────────────────────────────────────────────────────────
+// V2's avatar hero runs a separate, simpler script from V1's Traveller demo
+// above — different top-level chips, a nested "example trip" row under
+// "Plan a trip", and an in-chat "Book a demo" lead-capture flow. Kept fully
+// separate from TRAVELLER_STEPS/TRAVELLER_NEXT so V1's script can never be
+// affected by changes made here.
+type V2StepId = "start" | "plan-trip" | "reply" | "demo-name" | "demo-email" | "demo-size" | "demo-mobile" | "demo-message" | "demo-datetime" | "demo-done"
+
+const V2_START_CAPTION = "Hi, I'm Miraee. Where do you need to be?"
+
+const V2_TOP_CHIPS: Chip[] = [
+    { label: "Plan a trip", icon: PLANE_ICON },
+    { label: "Book a flight", icon: PLANE_ICON },
+    { label: "Find a hotel near my meeting", icon: BUILDING_ICON },
+    { label: "For Finance teams", icon: BRIEFCASE_ICON },
+    { label: "Book a demo", icon: CALENDAR_ICON },
+]
+
+const V2_TRIP_CHIPS: Chip[] = [
+    { label: "San Francisco Tuesday to Thursday, client meeting downtown", icon: MAP_PIN_ICON },
+    { label: "New York Monday, back Wednesday; I need to be in Midtown by 9", icon: MAP_PIN_ICON },
+    { label: "Plan my itinerary for the Forbes Global CEO Conference in Singapore, 7–8 October 2026", icon: MAP_PIN_ICON },
+    { label: "Find me good Lebanese cuisine in Dubai", icon: MAP_PIN_ICON },
+]
+
+// A reply can carry one or more result cards (flight/hotel/restaurant) —
+// the same shape a real booking response would return — instead of, or
+// alongside, its line of caption text.
+type V2Card =
+    | { kind: "flight"; airline: string; route: string; time: string; price: string }
+    | { kind: "hotel"; name: string; meta: string; price: string }
+    | { kind: "restaurant"; name: string; meta: string; rating: string }
+
+type V2Reply = { text: string; cards?: V2Card[] }
+
+// One canned reply per top-level chip (Book a demo excluded — it starts the
+// lead-capture flow below instead) and one per nested trip-example chip.
+// Figures/names here are illustrative sample data, same convention as the
+// rest of the site's scripted demo content.
+const V2_REPLIES: Record<string, V2Reply> = {
+    "Book a flight": {
+        text: "Tell me your route and dates and I'll find the best in-policy fare. Here's a sample result:",
+        cards: [{ kind: "flight", airline: "United · UA 902", route: "SFO → JFK", time: "Tue, 8:10 AM – 4:35 PM · Nonstop", price: "$412" }],
+    },
+    "Find a hotel near my meeting": {
+        text: "Share your meeting address and dates — I'll find well-rated, policy-friendly hotels nearby. Here's a sample result:",
+        cards: [{ kind: "hotel", name: "Marriott Downtown", meta: "0.3 mi from your meeting · 4.6★ · in policy", price: "$219/night" }],
+    },
+    "For Finance teams": {
+        text: "Finance gets committed spend at booking, automatic reconciliation, and a full exportable audit trail — every trip, no manual work.",
+    },
+    "San Francisco Tuesday to Thursday, client meeting downtown": {
+        text: "Got it — San Francisco, Tuesday to Thursday. I'll pull in-policy flights and a hotel near your downtown meeting now.",
+        cards: [
+            { kind: "flight", airline: "Alaska · AS 318", route: "→ SFO", time: "Tue, 7:45 AM – 10:05 AM · Nonstop", price: "$268" },
+            { kind: "hotel", name: "Hyatt Regency SF Downtown", meta: "0.2 mi from your meeting · 4.5★ · in policy", price: "$249/night" },
+        ],
+    },
+    "New York Monday, back Wednesday; I need to be in Midtown by 9": {
+        text: "Noted — New York, Monday through Wednesday. I'll make sure you're checked in and ready for your 9am in Midtown.",
+        cards: [
+            { kind: "flight", airline: "Delta · DL 1441", route: "→ JFK", time: "Mon, 6:20 AM – 8:55 AM · Nonstop", price: "$301" },
+            { kind: "hotel", name: "The Midtown Suites", meta: "0.1 mi from your 9am · 4.4★ · in policy", price: "$284/night" },
+        ],
+    },
+    "Plan my itinerary for the Forbes Global CEO Conference in Singapore, 7–8 October 2026": {
+        text: "Building your itinerary for the Forbes Global CEO Conference in Singapore, 7–8 October 2026 — flights, hotel and ground transport, all within policy.",
+        cards: [
+            { kind: "flight", airline: "Singapore Airlines · SQ 32", route: "→ SIN", time: "Mon, 11:40 PM – 6:05 AM (+2) · Nonstop", price: "$1,240" },
+            { kind: "hotel", name: "Marina Bay Sands", meta: "0.4 mi from the conference venue · 4.7★ · in policy", price: "$389/night" },
+        ],
+    },
+    "Find me good Lebanese cuisine in Dubai": {
+        text: "Found a few highly-rated Lebanese spots near your Dubai stay — I'll share the top picks and can reserve a table for you.",
+        cards: [{ kind: "restaurant", name: "Al Mandaloun", meta: "Downtown Dubai · Lebanese · Reservation available tonight", rating: "4.7★" }],
+    },
+}
+
+function v2ChipsFor(step: V2StepId): Chip[] {
+    if (step === "start") return V2_TOP_CHIPS
+    if (step === "plan-trip") return V2_TRIP_CHIPS
+    if (step === "demo-done") return [{ label: "Start over", icon: REFRESH_ICON }]
+    return []
+}
+
+type DemoField = "name" | "email" | "size" | "mobile" | "message" | "datetime"
+const DEMO_FIELDS: DemoField[] = ["name", "email", "size", "mobile", "message", "datetime"]
+const DEMO_PROMPTS: Record<DemoField, string> = {
+    name: "Sure — let's get your demo booked. What's your name?",
+    email: "Thanks. What's your company email?",
+    size: "Great. What's your company size?",
+    mobile: "And a mobile number we can reach you on?",
+    message: "Anything you'd like our team to know before the call?",
+    datetime: "Last thing — what date and time works best for the demo call?",
 }
 
 // Types each phrase out character by character, holds, deletes it back out,
@@ -451,6 +549,48 @@ function splitChips(chips: Chip[]): [Chip[], Chip[]] {
     return [chips.filter((_, i) => i % 2 === 0), chips.filter((_, i) => i % 2 === 1)]
 }
 
+// A single flight/hotel/restaurant result — same illustrative-sample-data
+// convention as the rest of the demo script, rendered under V2's reply
+// bubble for the chips whose reply is a real booking result rather than
+// just a line of copy (see V2_REPLIES above).
+function V2ResultCard({ card }: { card: V2Card }) {
+    if (card.kind === "flight") {
+        return (
+            <div className="v4-result-card">
+                <div className="v4-result-card__icon">{PLANE_ICON}</div>
+                <div className="v4-result-card__body">
+                    <strong>{card.airline}</strong>
+                    <span>{card.route}</span>
+                    <span>{card.time}</span>
+                </div>
+                <div className="v4-result-card__price">{card.price}</div>
+            </div>
+        )
+    }
+    if (card.kind === "hotel") {
+        return (
+            <div className="v4-result-card">
+                <div className="v4-result-card__icon">{BUILDING_ICON}</div>
+                <div className="v4-result-card__body">
+                    <strong>{card.name}</strong>
+                    <span>{card.meta}</span>
+                </div>
+                <div className="v4-result-card__price">{card.price}</div>
+            </div>
+        )
+    }
+    return (
+        <div className="v4-result-card">
+            <div className="v4-result-card__icon">{MAP_PIN_ICON}</div>
+            <div className="v4-result-card__body">
+                <strong>{card.name}</strong>
+                <span>{card.meta}</span>
+            </div>
+            <div className="v4-result-card__price">{card.rating}</div>
+        </div>
+    )
+}
+
 // The face that used to live inside the collapsed hero card, now given its
 // own place inside the hero once the visitor scrolls (see HeroVideo.tsx) —
 // a proper introduction to the assistant instead of a small thumbnail
@@ -463,12 +603,16 @@ function splitChips(chips: Chip[]): [Chip[], Chip[]] {
 // the next scripted node, exactly like the source spreadsheet's node graph.
 export function AvatarSpotlight() {
     const reduce = useReducedMotion()
+    const isV2 = isV2Path(useLocation().pathname)
     const [step, setStep] = useState<TravellerStepId>("start")
     const [destination, setDestination] = useState("")
-    const [caption, setCaption] = useState(TRAVELLER_STEPS.start.caption)
+    const [v2Step, setV2Step] = useState<V2StepId>("start")
+    const [demoAnswers, setDemoAnswers] = useState<Partial<Record<DemoField, string>>>({})
+    const [caption, setCaption] = useState(isV2 ? V2_START_CAPTION : TRAVELLER_STEPS.start.caption)
     const [value, setValue] = useState("")
     const [status, setStatus] = useState<"idle" | "thinking">("idle")
     const [filler, setFiller] = useState("")
+    const [cards, setCards] = useState<V2Card[]>([])
     const typedPlaceholder = useTypewriter(PLACEHOLDER_PROMPTS, !!reduce)
     const timer = useRef<number>(0)
 
@@ -476,12 +620,110 @@ export function AvatarSpotlight() {
 
     const reset = () => {
         window.clearTimeout(timer.current)
-        setStep("start")
-        setDestination("")
-        setCaption(TRAVELLER_STEPS.start.caption)
         setStatus("idle")
         setFiller("")
         setValue("")
+        setCards([])
+        if (isV2) {
+            setV2Step("start")
+            setDemoAnswers({})
+            setCaption(V2_START_CAPTION)
+            return
+        }
+        setStep("start")
+        setDestination("")
+        setCaption(TRAVELLER_STEPS.start.caption)
+    }
+
+    // V2's chip choice — separate script from V1's Traveller demo above (see
+    // the "V2 hero demo" block near the top of this file).
+    const v2Choose = (label: string) => {
+        if (status === "thinking") return
+        if (v2Step === "start") {
+            if (label === "Plan a trip") {
+                setV2Step("plan-trip")
+                setCaption("Sure — tell me the trip, or pick an example:")
+                setCards([])
+                return
+            }
+            if (label === "Book a demo") {
+                setV2Step("demo-name")
+                setCaption(DEMO_PROMPTS.name)
+                setCards([])
+                return
+            }
+            const reply = V2_REPLIES[label]
+            if (!reply) return
+            setStatus("thinking")
+            setFiller("Thinking…")
+            window.clearTimeout(timer.current)
+            timer.current = window.setTimeout(() => {
+                setCaption(reply.text)
+                setCards(reply.cards ?? [])
+                setStatus("idle")
+                setV2Step("start")
+            }, 550)
+            return
+        }
+        if (v2Step === "plan-trip") {
+            const reply = V2_REPLIES[label]
+            if (!reply) return
+            setStatus("thinking")
+            setFiller("Building the itinerary…")
+            window.clearTimeout(timer.current)
+            timer.current = window.setTimeout(() => {
+                setCaption(reply.text)
+                setCards(reply.cards ?? [])
+                setStatus("idle")
+                setV2Step("start")
+            }, 650)
+            return
+        }
+        if (v2Step === "demo-done" && label === "Start over") { reset(); return }
+    }
+
+    // V2's "Book a demo" lead capture — one field per turn (see DEMO_FIELDS),
+    // then a confirmation naming the date/time the person just typed. Free
+    // text outside that flow gets the same generic respondTo() reply V1's
+    // typed input falls back to past its first step.
+    const v2Submit = (text: string) => {
+        const trimmed = text.trim()
+        if (!trimmed || status === "thinking") return
+        setValue("")
+
+        if (v2Step.startsWith("demo-") && v2Step !== "demo-done") {
+            const field = v2Step.slice(5) as DemoField
+            const answers = { ...demoAnswers, [field]: trimmed }
+            setDemoAnswers(answers)
+            const nextField = DEMO_FIELDS[DEMO_FIELDS.indexOf(field) + 1]
+            setStatus("thinking")
+            window.clearTimeout(timer.current)
+            if (nextField) {
+                setFiller("One moment…")
+                timer.current = window.setTimeout(() => {
+                    setV2Step(`demo-${nextField}` as V2StepId)
+                    setCaption(DEMO_PROMPTS[nextField])
+                    setStatus("idle")
+                }, 450)
+            } else {
+                setFiller("Booking your demo…")
+                timer.current = window.setTimeout(() => {
+                    setV2Step("demo-done")
+                    setCaption(`Thanks${answers.name ? ", " + answers.name : ""} — our team will get back to you at ${trimmed}, the time you've chosen.`)
+                    setStatus("idle")
+                }, 600)
+            }
+            return
+        }
+
+        setStatus("thinking")
+        setFiller(fillerFor(trimmed))
+        window.clearTimeout(timer.current)
+        timer.current = window.setTimeout(() => {
+            setCaption(respondTo(trimmed))
+            setCards([])
+            setStatus("idle")
+        }, 550)
     }
 
     // Advances from the current step to whatever TRAVELLER_NEXT says follows
@@ -516,6 +758,7 @@ export function AvatarSpotlight() {
     // those are handled here before falling through to the generic advance.
     const choose = (label: string) => {
         if (status === "thinking") return
+        if (isV2) { v2Choose(label); return }
         if (step === "options" && label === "Show more") {
             setCaption(TRAVELLER_STEPS.options.caption)
             return
@@ -534,6 +777,7 @@ export function AvatarSpotlight() {
     // typed anywhere later it's a "detail led question" the sheet says to
     // answer with the same fallback line every persona tab uses.
     const submitText = (text: string) => {
+        if (isV2) { v2Submit(text); return }
         const trimmed = text.trim()
         if (!trimmed || status === "thinking") return
         setValue("")
@@ -557,7 +801,7 @@ export function AvatarSpotlight() {
         </motion.span>
     )
 
-    const chips = TRAVELLER_STEPS[step].chips
+    const chips = isV2 ? v2ChipsFor(v2Step) : TRAVELLER_STEPS[step].chips
     const [leftChips, rightChips] = splitChips(chips)
 
     return (
@@ -587,6 +831,12 @@ export function AvatarSpotlight() {
                     </div>
 
                     <p className="v4-avatar-spotlight__caption" aria-live="polite">{captionEl}</p>
+
+                    {isV2 && cards.length > 0 && (
+                        <div className="v4-result-cards">
+                            {cards.map((c, i) => <V2ResultCard key={i} card={c} />)}
+                        </div>
+                    )}
 
                     <form className="v4-assistant__form v4-avatar-spotlight__form" onSubmit={e => { e.preventDefault(); submitText(value) }}>
                     <div className="v4-assistant__input-wrap">

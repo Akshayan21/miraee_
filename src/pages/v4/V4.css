@@ -102,6 +102,7 @@
 .v4-nav__version { display: flex; align-items: center; gap: 2px; padding: 3px; border: 1px solid rgba(69, 14, 20, .1); border-radius: 100px; background: rgba(69, 14, 20, .035); }
 .v4-nav__version a { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 26px; padding: 0 4px; border-radius: 100px; color: var(--m-muted); font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; text-decoration: none; transition: background .2s var(--m-ease), color .2s var(--m-ease); }
 .v4-nav__version a[aria-current="page"] { background: var(--m-maroon); color: var(--m-paper); }
+.v4-nav__version--sheet { align-self: flex-start; margin-top: 14px; }
 .v4-nav__version--mobile { flex: 0 0 auto; margin: 0; }
 
 .v4-nav__burger { display: grid; place-content: center; gap: 5px; width: 40px; height: 40px; border: 1px solid var(--m-line); border-radius: 12px; background: transparent; cursor: pointer; }
@@ -393,8 +394,10 @@
 
 /* Embedded inside the dark video hero (HeroVideo.tsx), the caption's default
    maroon reads as near-invisible over the footage — white with a soft
-   shadow for legibility over whatever's playing behind it. */
-.v4-hero-video__avatar .v4-avatar-spotlight__caption { color: #fffaf6; text-shadow: 0 2px 14px rgba(15, 4, 7, .55); }
+   shadow for legibility over whatever's playing behind it. V2's hero has no
+   video (plain white, see .v4-hero-video--light), so it keeps the default
+   maroon instead. */
+.v4-hero-video:not(.v4-hero-video--light) .v4-hero-video__avatar .v4-avatar-spotlight__caption { color: #fffaf6; text-shadow: 0 2px 14px rgba(15, 4, 7, .55); }
 .v4-avatar-spotlight__form { width: 100%; max-width: 420px; margin-bottom: 14px; }
 @media (max-width: 1100px) {
   .v4-avatar-spotlight__row { flex-direction: column; }
@@ -2329,6 +2332,106 @@
 .v4-hero-video__avatar { width: 100%; }
 .v4-hero-video__avatar .v4-avatar-spotlight { padding: 0; }
 
+/* V2's hero has nothing above the avatar (no eyebrow/headline/stats bar) to
+   fill the space the dark-video layout budgets for, so its own padding and
+   photo/column proportions are tightened rather than inheriting V1's —
+   otherwise the avatar reads as adrift in an oversized, mostly-empty
+   section instead of as the hero's one deliberate focal point. */
+.v4-hero-video--light .v4-hero-video__content:has(.v4-hero-video__avatar) {
+  padding-top: clamp(48px, 6vw, 72px);
+  padding-bottom: clamp(40px, 5vw, 56px);
+}
+.v4-hero-video--light.v4-hero-video:has(.v4-hero-video__avatar) {
+  min-height: 58vh;
+  min-height: 58svh;
+}
+.v4-hero-video--light .v4-avatar-spotlight__row {
+  gap: clamp(16px, 2.4vw, 32px);
+  max-width: 880px;
+}
+.v4-hero-video--light .v4-avatar-spotlight__chips { flex: 0 0 240px; gap: 12px; }
+/* The Traveller demo's chips are one or two words, so a fully-rounded pill
+   reads fine. V2's chips can run a full sentence (the trip-example row),
+   and a pill radius wrapped around several lines of text looks broken —
+   a modest rounded rectangle, a top-aligned icon and a comfortable
+   line-height read as a proper card instead. */
+.v4-hero-video--light .v4-assistant__chips button {
+  align-items: flex-start;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  text-align: left;
+  line-height: 1.4;
+  box-shadow: 0 8px 20px rgba(69, 14, 20, .05);
+}
+.v4-hero-video--light .v4-assistant__chips button svg { flex-shrink: 0; margin-top: 2px; }
+.v4-hero-video--light .v4-assistant__chips button i { display: none; }
+.v4-hero-video--light .v4-assistant__frame--lg {
+  width: 260px;
+  height: 350px;
+  border-radius: 130px;
+  margin-bottom: 18px;
+}
+/* Transparent — no bubble chrome — so it sits directly on the hero's white
+   background. Result cards (flight/hotel/restaurant, see .v4-result-card
+   below) are what carry a surface; plain replies stay as bare text. */
+.v4-hero-video--light .v4-avatar-spotlight__caption {
+  max-width: 420px;
+  margin: 0 auto 20px;
+  font-size: 1rem;
+}
+
+/* One or more booking-result cards under a reply — same visual language as
+   the chip cards (rounded rect, paper surface, hairline border) so the
+   whole hero reads as one system. */
+.v4-result-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto 20px;
+}
+.v4-result-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--m-line);
+  border-radius: 16px;
+  background: var(--m-paper);
+  box-shadow: 0 8px 20px rgba(69, 14, 20, .05);
+  text-align: left;
+}
+.v4-result-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--m-orange) 10%, transparent);
+  color: var(--m-orange);
+}
+.v4-result-card__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.v4-result-card__body strong { font-size: 13.5px; font-weight: 700; color: var(--m-maroon); }
+.v4-result-card__body span { font-size: 12px; color: var(--m-muted); }
+.v4-result-card__price { flex-shrink: 0; font-size: 13.5px; font-weight: 800; color: var(--m-maroon); white-space: nowrap; }
+/* No oval card behind the portrait — the photo's own mask (see
+   .v4-assistant__photo--lg) already fades it to transparent at the edges,
+   so dropping the frame's border/fill/shadow/pulse lets it read as a free
+   floating portrait instead of a framed photo. */
+.v4-hero-video--light .v4-assistant__frame--lg {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.v4-hero-video--light .v4-assistant__frame-glow { display: none; }
+@media (max-width: 1100px) {
+  .v4-hero-video--light .v4-avatar-spotlight__chips { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+}
+
 .v4-hero-video__eyebrow {
   display: inline-flex;
   align-items: center;
@@ -2393,6 +2496,24 @@
 
 .v4-hero-video__stat svg { color: var(--m-orange-brand); flex-shrink: 0; }
 .v4-hero-video__stat strong { color: #fffaf6; font-weight: 800; }
+
+/* V2's hero has no video/image/overlay behind it at all — plain white,
+   so every color tuned for the dark video backdrop above needs a light
+   counterpart here instead of just being left to inherit. */
+.v4-hero-video--light { background: #fff; }
+.v4-hero-video--light .v4-hero-video__eyebrow {
+  border-color: rgba(69, 14, 20, .14);
+  background: rgba(69, 14, 20, .04);
+  color: var(--m-orange-brand);
+}
+.v4-hero-video--light .v4-hero-video__title { color: var(--m-maroon, #450e14); }
+.v4-hero-video--light .v4-hero-video__stats {
+  border-top-color: rgba(69, 14, 20, .1);
+  background: transparent;
+  backdrop-filter: none;
+}
+.v4-hero-video--light .v4-hero-video__stat { color: rgba(69, 14, 20, .68); }
+.v4-hero-video--light .v4-hero-video__stat strong { color: var(--m-maroon, #450e14); }
 
 @media (max-width: 640px) {
   .v4-hero-video__content { padding-top: 132px; }

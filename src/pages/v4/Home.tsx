@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { MotionConfig } from "framer-motion"
 import { V4Nav, V4Footer, Reveal } from "../../components/V4Kit"
 import { usePageMeta } from "../../hooks/usePageMeta"
@@ -7,6 +7,7 @@ import { HeroVideo } from "./HeroVideo"
 import { ScrollProgress, GrainOverlay, CustomCursor } from "../../animations"
 import { IntroCover } from "./V0Intro"
 import { useIntroActive } from "./useIntroActive"
+import { isV2Path } from "../../lib/v2"
 import "../SubpagesV2.css"
 import "./V4.css"
 
@@ -32,6 +33,7 @@ export default function V4Home() {
     // tab order and the accessibility tree for exactly as long as the cover is
     // active, then hands it back — no extra library, no manual tabindex bookkeeping.
     const intro = useIntroActive()
+    const isV2 = isV2Path(useLocation().pathname)
 
     return (
         <MotionConfig reducedMotion="user">
@@ -46,14 +48,17 @@ export default function V4Home() {
             ../../animations/smoothScroll.tsx — re-add <SmoothScroll /> if native
             scroll ever needs to be replaced with eased scroll again.
             CustomCursor is desktop-only by its own width check; both this and
-            GrainOverlay bail under prefers-reduced-motion. */}
-        <CustomCursor />
+            GrainOverlay bail under prefers-reduced-motion. Its orange dot +
+            trailing ring are tuned to disappear into the dark video/photo
+            hero — on V2's plain white hero they're just a stray mouse-follow
+            smudge, so V2 goes without it. */}
+        {!isV2 && <CustomCursor />}
         <GrainOverlay />
         <IntroCover active={intro.active} phase={intro.phase} />
         <div className="v4-site" inert={intro.active || undefined}>
             <ScrollProgress />
             <a className="v4-skip" href="#main">Skip to content</a>
-            <V4Nav transparent />
+            <V4Nav transparent={!isV2} />
 
             <main id="main">
                 <HeroVideo />
