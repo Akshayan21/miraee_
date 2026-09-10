@@ -414,6 +414,7 @@
 .v4-assistant__wave { display: flex; align-items: center; justify-content: center; gap: 2px; height: 22px; margin-bottom: 16px; }
 .v4-assistant__wave span { display: inline-block; width: 2px; height: 100%; border-radius: 2px; background: var(--m-orange); opacity: .55; transform-origin: center; }
 .v4-assistant__form { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 14px; margin-bottom: 14px; border: 1px solid var(--m-line); border-radius: 100px; background: var(--m-paper); }
+.v4-assistant__form:has(input:focus-visible) { box-shadow: 0 0 0 3px rgba(229, 86, 2, .32); }
 .v4-assistant__form input { width: 100%; border: 0; background: transparent; font-family: inherit; font-size: 13.5px; color: var(--m-maroon); }
 .v4-assistant__form input::placeholder { color: var(--m-muted); }
 .v4-assistant__form input:focus { outline: none; }
@@ -423,7 +424,7 @@
 .v4-assistant__send { background: var(--m-orange); color: #fffaf6; }
 .v4-assistant__send:disabled { opacity: .4; cursor: not-allowed; }
 .v4-assistant__prompts { display: flex; flex-wrap: nowrap; gap: 6px; }
-.v4-assistant__prompts button { display: inline-flex; align-items: center; flex-shrink: 0; gap: 4px; padding: 7px 9px; border: 1px solid var(--m-line); border-radius: 100px; background: var(--m-paper); color: var(--m-maroon); font-size: 10.5px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: border-color .2s var(--m-ease), color .2s var(--m-ease); }
+.v4-assistant__prompts button { display: inline-flex; align-items: center; flex-shrink: 0; gap: 4px; min-height: 44px; padding: 7px 12px; border: 1px solid var(--m-line); border-radius: 100px; background: var(--m-paper); color: var(--m-maroon); font-size: 10.5px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: border-color .2s var(--m-ease), color .2s var(--m-ease); }
 .v4-assistant__prompts button:hover { border-color: var(--m-orange); color: var(--m-orange); }
 
 /* ── Expanded takeover ───────────────────────────────────────────────────── */
@@ -434,6 +435,7 @@
 .v4-assistant__chips--right { align-items: flex-end; }
 .v4-assistant__chips button { display: inline-flex; align-items: center; gap: 10px; padding: 14px 18px; border: 1px solid var(--m-line); border-radius: 100px; background: var(--m-paper); color: var(--m-maroon); font-size: 13.5px; font-weight: 600; cursor: pointer; box-shadow: 0 12px 28px rgba(69, 14, 20, .06); transition: border-color .2s var(--m-ease), transform .2s var(--m-ease), background .2s var(--m-ease); }
 .v4-assistant__chips button:hover { border-color: var(--m-orange); transform: translateY(-2px); background: color-mix(in srgb, var(--m-orange) 6%, var(--m-paper)); }
+.v4-assistant__chips button:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(229, 86, 2, .32); }
 .v4-assistant__chips button i { margin-left: 2px; color: var(--m-orange); font-style: normal; opacity: 0; transform: translateX(-4px); transition: opacity .2s var(--m-ease), transform .2s var(--m-ease); }
 .v4-assistant__chips button:hover i { opacity: 1; transform: translateX(0); }
 .v4-assistant__stage { display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; }
@@ -441,6 +443,7 @@
 .v4-assistant__listen { display: inline-flex; align-items: center; gap: 12px; padding: 6px 6px 6px 18px; border: 1px solid var(--m-line); border-radius: 100px; background: var(--m-paper); color: var(--m-muted); font-family: inherit; font-size: 13px; cursor: pointer; }
 .v4-assistant__mic-circle { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--m-soft); color: var(--m-maroon); }
 .v4-assistant__bar { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; margin-top: 8px; padding: 8px 8px 8px 20px; border: 1px solid var(--m-line); border-radius: 100px; background: var(--v4-panel-bg); box-shadow: var(--v4-panel-shadow); }
+.v4-assistant__bar:has(input:focus-visible) { box-shadow: var(--v4-panel-shadow), 0 0 0 3px rgba(229, 86, 2, .32); }
 .v4-assistant__bar-keyboard { display: flex; align-items: center; color: var(--m-muted); }
 .v4-assistant__bar input { width: 100%; border: 0; background: transparent; font-family: inherit; font-size: 15px; color: var(--m-maroon); }
 .v4-assistant__bar input::placeholder { color: var(--m-muted); }
@@ -448,7 +451,16 @@
 .v4-assistant__bar .v4-assistant__placeholder-fx { font-size: 15px; }
 
 .v4-assistant__input-wrap { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
-.v4-assistant__placeholder-fx { position: absolute; inset: 0; display: flex; align-items: center; overflow: hidden; color: var(--m-muted); font-family: inherit; white-space: nowrap; pointer-events: none; }
+/* A long rotating placeholder can run past the compose bar's width — rather
+   than let it hard-cut mid-word against the mic button, the last ~24px
+   fades to transparent so an overflowing line reads as intentionally
+   trailing off, not broken. */
+.v4-assistant__placeholder-fx {
+  position: absolute; inset: 0; display: flex; align-items: center; overflow: hidden;
+  color: var(--m-muted); font-family: inherit; white-space: nowrap; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+}
 .v4-assistant__caret { display: inline-block; width: 1px; height: 1em; margin-left: 1px; background: currentColor; vertical-align: -0.15em; animation: v4-caret-blink 1s step-start infinite; }
 @keyframes v4-caret-blink { 50% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
@@ -2332,13 +2344,59 @@
 .v4-hero-video__avatar { width: 100%; }
 .v4-hero-video__avatar .v4-avatar-spotlight { padding: 0; }
 
+/* V2's way back to the landing screen (see AvatarSpotlight's `reset`) — a
+   small pill sitting above the row rather than inside the three-column
+   flex layout, so it doesn't compete for space with the chip columns. */
+.v4-hero-video--light .v4-avatar-spotlight { position: relative; }
+/* A soft warm glow grounding the portrait against the plain white hero —
+   without it the avatar and its two chip columns read as three unrelated
+   things scattered on an empty page rather than one composed scene. Sits
+   behind everything (negative z-index) and never intercepts clicks. */
+.v4-hero-video--light .v4-avatar-spotlight::before {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: min(760px, 92vw); height: min(760px, 92vw);
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse 55% 55% at 50% 42%, rgba(229, 86, 2, .07), transparent 72%);
+  pointer-events: none;
+  z-index: -1;
+}
+/* Anchored by its own BOTTOM edge sitting a fixed 20px above the row's top
+   edge (translateY(-100%) - 20px), instead of a small negative top offset —
+   that way it can never overlap the avatar portrait no matter how tall any
+   given row's tallest column ends up being (chips are content-driven, and
+   used to collide with the top of the photo). */
+.v4-chat-back {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, calc(-100% - 20px));
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--m-line);
+  border-radius: 100px;
+  background: #fff;
+  color: var(--m-muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(69, 14, 20, .05);
+  transition: color .2s var(--m-ease), border-color .2s var(--m-ease), box-shadow .2s var(--m-ease), transform .2s var(--m-ease);
+}
+.v4-chat-back:hover { color: var(--m-orange); border-color: var(--m-orange); box-shadow: 0 8px 20px rgba(69, 14, 20, .09); transform: translate(-50%, calc(-100% - 22px)); }
+.v4-chat-back:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(229, 86, 2, .32); }
+
 /* V2's hero has nothing above the avatar (no eyebrow/headline/stats bar) to
    fill the space the dark-video layout budgets for, so its own padding and
    photo/column proportions are tightened rather than inheriting V1's —
    otherwise the avatar reads as adrift in an oversized, mostly-empty
    section instead of as the hero's one deliberate focal point. */
 .v4-hero-video--light .v4-hero-video__content:has(.v4-hero-video__avatar) {
-  padding-top: clamp(48px, 6vw, 72px);
+  padding-top: clamp(112px, 14vw, 152px);
   padding-bottom: clamp(40px, 5vw, 56px);
 }
 .v4-hero-video--light.v4-hero-video:has(.v4-hero-video__avatar) {
@@ -2376,9 +2434,10 @@
    background. Result cards (flight/hotel/restaurant, see .v4-result-card
    below) are what carry a surface; plain replies stay as bare text. */
 .v4-hero-video--light .v4-avatar-spotlight__caption {
-  max-width: 420px;
+  max-width: 480px;
   margin: 0 auto 20px;
   font-size: 1rem;
+  white-space: pre-line;
 }
 
 /* One or more booking-result cards under a reply — same visual language as
@@ -2393,16 +2452,33 @@
   margin: 0 auto 20px;
 }
 .v4-result-card {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 14px 16px;
+  padding: 14px 16px 14px 20px;
   border: 1px solid var(--m-line);
   border-radius: 16px;
   background: var(--m-paper);
   box-shadow: 0 8px 20px rgba(69, 14, 20, .05);
   text-align: left;
+  overflow: hidden;
+  cursor: default;
 }
+/* A thin colour-coded rail on the left — flight/hotel/restaurant read apart
+   from each other at a glance instead of being three identical grey rows. */
+.v4-result-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--rc-accent, var(--m-orange));
+}
+.v4-result-card--flight { --rc-accent: var(--m-orange); }
+.v4-result-card--hotel { --rc-accent: #2f8f6f; }
+.v4-result-card--restaurant { --rc-accent: var(--m-maroon); }
+.v4-result-card--stat { --rc-accent: #4a7fd9; }
+.v4-result-card__stat-value { font-size: 20px; font-weight: 800; color: var(--rc-accent); }
 .v4-result-card__icon {
   display: flex;
   align-items: center;
@@ -2411,13 +2487,177 @@
   height: 36px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--m-orange) 10%, transparent);
-  color: var(--m-orange);
+  background: color-mix(in srgb, var(--rc-accent, var(--m-orange)) 12%, transparent);
+  color: var(--rc-accent, var(--m-orange));
 }
 .v4-result-card__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .v4-result-card__body strong { font-size: 13.5px; font-weight: 700; color: var(--m-maroon); }
 .v4-result-card__body span { font-size: 12px; color: var(--m-muted); }
 .v4-result-card__price { flex-shrink: 0; font-size: 13.5px; font-weight: 800; color: var(--m-maroon); white-space: nowrap; }
+
+/* Typing indicator shown next to the filler line while V2's demo is
+   "thinking" — three bouncing dots instead of a bare static word, so the
+   wait reads as an assistant actually working rather than a frozen line. */
+.v4-thinking { display: inline-flex; align-items: center; gap: 6px; }
+.v4-thinking__dots { display: inline-flex; gap: 3px; }
+.v4-thinking__dots i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--m-orange);
+  animation: v4-thinking-bounce 1.1s ease-in-out infinite;
+}
+.v4-thinking__dots i:nth-child(2) { animation-delay: .14s; }
+.v4-thinking__dots i:nth-child(3) { animation-delay: .28s; }
+@keyframes v4-thinking-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: .5; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v4-thinking__dots i { animation: none; }
+}
+
+/* Plays automatically whenever the element is inserted into the DOM — no
+   JS animation library, no exit/enter lifecycle to coordinate, so the
+   landing↔chat swap (a plain conditional render, see AvatarSpotlight)
+   can't get stuck waiting on a completion callback that never fires. */
+@keyframes v4-hero-fade-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+.v4-hero-fade-in { animation: v4-hero-fade-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .v4-hero-fade-in { animation: none; }
+}
+
+/* ── V2 landing (AvatarSpotlight, pre-interaction) ───────────────────────
+   Shows once, before the visitor has picked a chip or typed anything.
+   The moment they do either, `started` flips and the existing chat UI
+   above (avatar/caption/chips/cards) takes over — same handlers, so
+   nothing about how the demo actually behaves changes here. */
+.v4-hero-landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+.v4-hero-landing__avatar-wrap { position: relative; margin-bottom: 28px; }
+.v4-hero-landing__avatar {
+  display: block;
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 22%;
+  border: 5px solid #fff;
+  box-shadow: 0 10px 28px rgba(69, 14, 20, .12);
+}
+.v4-hero-landing__status {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #21c55d;
+  border: 3px solid #fff;
+}
+.v4-hero-landing__title {
+  max-width: 20ch;
+  margin: 0 auto 16px;
+  font-family: var(--font-heading);
+  font-size: clamp(1.9rem, 4vw, 2.9rem);
+  font-weight: 700;
+  letter-spacing: -.01em;
+  line-height: 1.18;
+  color: var(--m-maroon);
+}
+.v4-hero-landing__subtitle {
+  max-width: 56ch;
+  margin: 0 0 32px;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--m-muted);
+}
+.v4-hero-landing__search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 620px;
+  padding: 10px 10px 10px 26px;
+  margin-bottom: 22px;
+  border-radius: 100px;
+  background: #fff;
+  border: 1px solid var(--m-line);
+  box-shadow: 0 20px 46px rgba(69, 14, 20, .08);
+}
+.v4-hero-landing__search:has(input:focus-visible) { box-shadow: 0 20px 46px rgba(69, 14, 20, .08), 0 0 0 3px rgba(229, 86, 2, .32); }
+.v4-hero-landing__search .v4-assistant__input-wrap { flex: 1; min-width: 0; }
+.v4-hero-landing__search input { width: 100%; border: 0; background: transparent; font-family: inherit; font-size: 15px; color: var(--m-maroon); }
+.v4-hero-landing__search input::placeholder { color: var(--m-muted); }
+.v4-hero-landing__search input:focus { outline: none; }
+.v4-hero-landing__mic, .v4-hero-landing__send {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.v4-hero-landing__mic { background: var(--m-soft); color: var(--m-maroon); border: 1px solid var(--m-line); }
+.v4-hero-landing__send { background: var(--m-orange); color: #fffaf6; }
+.v4-hero-landing__send:disabled { opacity: .5; cursor: default; }
+.v4-hero-landing__chips {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 96vw;
+  margin-bottom: 36px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.v4-hero-landing__chips::-webkit-scrollbar { display: none; }
+.v4-hero-landing__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border: 1px solid var(--m-line);
+  border-radius: 100px;
+  background: #fff;
+  color: var(--m-maroon);
+  font-size: 13.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(69, 14, 20, .05);
+  transition: border-color .2s var(--m-ease), transform .2s var(--m-ease), background .2s var(--m-ease);
+}
+.v4-hero-landing__chip:hover { border-color: var(--m-orange); transform: translateY(-2px); }
+/* The site-wide :focus-visible outline is a straight-edged ring — on a
+   fully-rounded (border-radius:100px) pill it sits proud of the curve at
+   the ends and reads as broken/glitchy rather than a clean focus state.
+   A box-shadow ring follows the pill's own radius exactly instead. */
+.v4-hero-landing__chip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(229, 86, 2, .32);
+}
+.v4-hero-landing__chip--dark { background: var(--m-maroon); border-color: var(--m-maroon); color: #fffaf6; }
+.v4-hero-landing__chip--dark:hover { background: #2e0409; border-color: #2e0409; }
+@media (max-width: 640px) {
+  .v4-hero-landing__search { padding-left: 18px; }
+  .v4-hero-landing__chip { padding: 10px 14px; font-size: 12.5px; }
+}
 /* No oval card behind the portrait — the photo's own mask (see
    .v4-assistant__photo--lg) already fades it to transparent at the edges,
    so dropping the frame's border/fill/shadow/pulse lets it read as a free
