@@ -55,6 +55,7 @@ const BUILDING_ICON = <svg width="14" height="14" viewBox="0 0 24 24" fill="none
 const REFRESH_ICON = <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7" /><path d="M21 3v6h-6" /></svg>
 const CALENDAR_ICON = <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4M8 15h.01M12 15h.01M16 15h.01" /></svg>
 const CLOSE_ICON = <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+const BACK_ICON = <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
 const MAP_PIN_ICON = <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s7-7.58 7-13A7 7 0 0 0 5 9c0 5.42 7 13 7 13Z" /><circle cx="12" cy="9" r="2.5" /></svg>
 const USERS_ICON = <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="8" r="3" /><path d="M2 20c0-3.3 3-6 7-6s7 2.7 7 6" /><circle cx="17" cy="8" r="2.5" /><path d="M23 20c0-2.6-2-4.8-4.5-5.6" /></svg>
 const CHECK_ICON = <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="m8 12 3 3 5-6" /></svg>
@@ -196,28 +197,41 @@ function fillerFor(text: string): string {
 }
 
 // ─── V2 hero demo ───────────────────────────────────────────────────────────
-// V2's avatar hero runs a separate, simpler script from V1's Traveller demo
-// above — different top-level chips, a nested "example trip" row under
-// "Plan a trip", and an in-chat "Book a demo" lead-capture flow. Kept fully
+// V2's avatar hero runs the "Interactive Script and Configuration" doc's
+// tree, starting with the Traveler Journey (the "Travel Booking" branch —
+// see TJStepId below). Travel Management / Expense Management / Administrator
+// View are the doc's other three top-level branches; until those are built
+// out the same way, their chips just show a short one-line reply. Kept fully
 // separate from TRAVELLER_STEPS/TRAVELLER_NEXT so V1's script can never be
 // affected by changes made here.
-type V2StepId = "start" | "plan-trip" | "reply" | "demo-name" | "demo-email" | "demo-size" | "demo-mobile" | "demo-message" | "demo-datetime" | "demo-done"
+type TJStepId = "tj-role" | "tj-destination" | "tj-purpose" | "tj-travelers" | "tj-action" | "tj-hotel" | "tj-seat" | "tj-next"
+type TMStepId =
+    | "tm-role"
+    | "tm-coord-q1" | "tm-coord-q2" | "tm-coord-q3" | "tm-coord-wrap"
+    | "tm-mgr-q1" | "tm-mgr-q2-approval" | "tm-mgr-q2-budget" | "tm-mgr-wrap"
+    | "tm-people-q1" | "tm-people-q2" | "tm-people-wrap"
+type EMStepId =
+    | "em-start"
+    | "em-spend-q1" | "em-spend-category" | "em-spend-wrap"
+    | "em-reimb-q1" | "em-reimb-wrap"
+    | "em-alerts-q1" | "em-alerts-wrap"
+    | "em-overview-wrap"
+type AVStepId =
+    | "av-start"
+    | "av-budget-q2" | "av-budget-wrap"
+    | "av-policy-q2" | "av-policy-wrap"
+    | "av-savings-q2" | "av-savings-wrap"
+    | "av-sustain-q1" | "av-sustain-wrap"
+    | "av-safety-q2" | "av-safety-wrap"
+type V2StepId = "start" | TJStepId | TMStepId | EMStepId | AVStepId | "demo-name" | "demo-email" | "demo-size" | "demo-mobile" | "demo-message" | "demo-datetime" | "demo-done"
 
-const V2_START_CAPTION = "Hi, I'm Miraee. Where do you need to be?"
+const V2_START_CAPTION = "Hi, I'm Miraee 👋 Hope you're doing well!\nI help make business travel simple for travelers, travel managers, and expense managers. How would you like to experience Miraee today?"
 
 const V2_TOP_CHIPS: Chip[] = [
-    { label: "Plan a trip", icon: PLANE_ICON },
-    { label: "Book a flight", icon: PLANE_ICON },
-    { label: "Find a hotel near my meeting", icon: BUILDING_ICON },
-    { label: "For Finance teams", icon: BRIEFCASE_ICON },
-    { label: "Book a demo", icon: CALENDAR_ICON },
-]
-
-const V2_TRIP_CHIPS: Chip[] = [
-    { label: "San Francisco Tuesday to Thursday, client meeting downtown", icon: MAP_PIN_ICON },
-    { label: "New York Monday, back Wednesday; I need to be in Midtown by 9", icon: MAP_PIN_ICON },
-    { label: "Plan my itinerary for the Forbes Global CEO Conference in Singapore, 7–8 October 2026", icon: MAP_PIN_ICON },
-    { label: "Find me good Lebanese cuisine in Dubai", icon: MAP_PIN_ICON },
+    { label: "Travel Booking", icon: PLANE_ICON },
+    { label: "Travel Management", icon: CALENDAR_ICON },
+    { label: "Expense Management", icon: RECEIPT_ICON },
+    { label: "Administrator View", icon: USERS_ICON },
 ]
 
 // A reply can carry one or more result cards (flight/hotel/restaurant) —
@@ -227,57 +241,460 @@ type V2Card =
     | { kind: "flight"; airline: string; route: string; time: string; price: string }
     | { kind: "hotel"; name: string; meta: string; price: string }
     | { kind: "restaurant"; name: string; meta: string; rating: string }
+    | { kind: "stat"; label: string; value: string }
 
 type V2Reply = { text: string; cards?: V2Card[] }
 
-// One canned reply per top-level chip (Book a demo excluded — it starts the
-// lead-capture flow below instead) and one per nested trip-example chip.
-// Figures/names here are illustrative sample data, same convention as the
-// rest of the site's scripted demo content.
-const V2_REPLIES: Record<string, V2Reply> = {
-    "Book a flight": {
-        text: "Tell me your route and dates and I'll find the best in-policy fare. Here's a sample result:",
-        cards: [{ kind: "flight", airline: "United · UA 902", route: "SFO → JFK", time: "Tue, 8:10 AM – 4:35 PM · Nonstop", price: "$412" }],
-    },
-    "Find a hotel near my meeting": {
-        text: "Share your meeting address and dates — I'll find well-rated, policy-friendly hotels nearby. Here's a sample result:",
-        cards: [{ kind: "hotel", name: "Marriott Downtown", meta: "0.3 mi from your meeting · 4.6★ · in policy", price: "$219/night" }],
-    },
-    "For Finance teams": {
-        text: "Finance gets committed spend at booking, automatic reconciliation, and a full exportable audit trail — every trip, no manual work.",
-    },
-    "San Francisco Tuesday to Thursday, client meeting downtown": {
-        text: "Got it — San Francisco, Tuesday to Thursday. I'll pull in-policy flights and a hotel near your downtown meeting now.",
-        cards: [
-            { kind: "flight", airline: "Alaska · AS 318", route: "→ SFO", time: "Tue, 7:45 AM – 10:05 AM · Nonstop", price: "$268" },
-            { kind: "hotel", name: "Hyatt Regency SF Downtown", meta: "0.2 mi from your meeting · 4.5★ · in policy", price: "$249/night" },
-        ],
-    },
-    "New York Monday, back Wednesday; I need to be in Midtown by 9": {
-        text: "Noted — New York, Monday through Wednesday. I'll make sure you're checked in and ready for your 9am in Midtown.",
-        cards: [
-            { kind: "flight", airline: "Delta · DL 1441", route: "→ JFK", time: "Mon, 6:20 AM – 8:55 AM · Nonstop", price: "$301" },
-            { kind: "hotel", name: "The Midtown Suites", meta: "0.1 mi from your 9am · 4.4★ · in policy", price: "$284/night" },
-        ],
-    },
-    "Plan my itinerary for the Forbes Global CEO Conference in Singapore, 7–8 October 2026": {
-        text: "Building your itinerary for the Forbes Global CEO Conference in Singapore, 7–8 October 2026 — flights, hotel and ground transport, all within policy.",
-        cards: [
-            { kind: "flight", airline: "Singapore Airlines · SQ 32", route: "→ SIN", time: "Mon, 11:40 PM – 6:05 AM (+2) · Nonstop", price: "$1,240" },
-            { kind: "hotel", name: "Marina Bay Sands", meta: "0.4 mi from the conference venue · 4.7★ · in policy", price: "$389/night" },
-        ],
-    },
-    "Find me good Lebanese cuisine in Dubai": {
-        text: "Found a few highly-rated Lebanese spots near your Dubai stay — I'll share the top picks and can reserve a table for you.",
-        cards: [{ kind: "restaurant", name: "Al Mandaloun", meta: "Downtown Dubai · Lebanese · Reservation available tonight", rating: "4.7★" }],
-    },
+// One-line replies for top-level branches not yet built out step by step.
+// All four are now, so this is currently empty — kept as the extension
+// point for any future top-level chip that doesn't warrant a full tree.
+const V2_REPLIES: Record<string, V2Reply> = {}
+
+// ─── Traveler Journey (Travel Booking) ──────────────────────────────────────
+// Doc: role → destination → purpose → traveler count → "what do you want me
+// to do" → hotel prefs → seat prefs → confirmation + sample booking → next
+// action. Two answers (role, destination) get echoed back in later copy, so
+// they're the only ones worth keeping in state — the rest only ever drive
+// which chips/caption comes next.
+const TJ_ROLE_CHIPS: Chip[] = [
+    { label: "Associate/Executive", icon: USERS_ICON },
+    { label: "Manager", icon: USERS_ICON },
+    { label: "Senior Manager", icon: USERS_ICON },
+    { label: "Team Lead", icon: USERS_ICON },
+    { label: "Chief Officer", icon: USERS_ICON },
+]
+const TJ_DESTINATION_CHIPS: Chip[] = [
+    { label: "New York", icon: MAP_PIN_ICON },
+    { label: "Dubai", icon: MAP_PIN_ICON },
+    { label: "Singapore", icon: MAP_PIN_ICON },
+    { label: "Other destinations", icon: MAP_PIN_ICON },
+]
+const TJ_PURPOSE_CHIPS: Chip[] = [
+    { label: "Client meeting", icon: BRIEFCASE_ICON },
+    { label: "Business trip", icon: PLANE_ICON },
+    { label: "Offsite", icon: USERS_ICON },
+    { label: "Personal Travel", icon: MAP_PIN_ICON },
+]
+const TJ_TRAVELERS_CHIPS: Chip[] = [
+    { label: "Just you", icon: USERS_ICON },
+    { label: "2-3", icon: USERS_ICON },
+    { label: "4-5", icon: USERS_ICON },
+    { label: "100+ people", icon: USERS_ICON },
+]
+const TJ_ACTION_CHIPS: Chip[] = [
+    { label: "Plan a trip", icon: PLANE_ICON },
+    { label: "Book a flight", icon: PLANE_ICON },
+    { label: "Find a hotel near my meeting", icon: BUILDING_ICON },
+    { label: "For Finance teams", icon: RECEIPT_ICON },
+    { label: "Book a demo", icon: CALENDAR_ICON },
+]
+const TJ_HOTEL_CHIPS: Chip[] = [
+    { label: "3 star hotels", icon: BUILDING_ICON },
+    { label: "4 star hotels", icon: BUILDING_ICON },
+    { label: "5 star hotels", icon: BUILDING_ICON },
+    { label: "Budget hotels", icon: BUILDING_ICON },
+]
+const TJ_SEAT_CHIPS: Chip[] = [
+    { label: "Aisle Seat - direct flights", icon: PLANE_ICON },
+    { label: "Window Seat - direct flights", icon: PLANE_ICON },
+    { label: "Aisle Seat - halt flights", icon: PLANE_ICON },
+    { label: "Window Seat - halt flights", icon: PLANE_ICON },
+]
+const TJ_NEXT_CHIPS: Chip[] = [
+    { label: "Book another trip", icon: REFRESH_ICON },
+    { label: "Show me a sample booking", icon: CHECK_ICON },
+    { label: "Access my trips", icon: BRIEFCASE_ICON },
+    { label: "Back to the Main Menu", icon: CLOSE_ICON },
+]
+
+const TJ_PROMPTS: Record<TJStepId, string> = {
+    "tj-role": "Role in the organisation:",
+    "tj-destination": "Please select your destination so I can find the accurate options for you:",
+    "tj-purpose": "What is the purpose of your trip?",
+    "tj-travelers": "How many of you are traveling?",
+    "tj-action": "Understood. What would you want me to do for you today?",
+    "tj-hotel": "Hotel preferences:",
+    "tj-seat": "Seat preference & route style:",
+    "tj-next": "What would you like to do next?",
+}
+
+// Which step follows which, for the steps that don't need a chip-specific
+// branch (see tjChoose for the ones that do: role, destination, action).
+const TJ_NEXT_STEP: Partial<Record<TJStepId, TJStepId>> = {
+    "tj-purpose": "tj-travelers",
+    "tj-travelers": "tj-action",
+    "tj-hotel": "tj-seat",
+}
+
+// ─── Travel Management ───────────────────────────────────────────────────
+// Doc: pick which of three roles you are, then a role-specific tree —
+// Travel Coordinator (live-ops style: a dashboard snapshot, then a scripted
+// flight-delay scenario), Manager (approvals/budget menu, one follow-up
+// question that depends on which category was picked), People Officer
+// (compliance/safety menu with a scripted risk-alert scenario). Each ends
+// on the same "check another category or head back" wrap-up, which loops
+// back to that role's own Q1 rather than to the role picker.
+const TM_ROLE_CHIPS: Chip[] = [
+    { label: "Travel Coordinator", icon: USERS_ICON },
+    { label: "People Officer", icon: USERS_ICON },
+    { label: "Manager", icon: USERS_ICON },
+]
+const TM_COORD_Q1_CHIPS: Chip[] = [
+    { label: "Active Trips", icon: PLANE_ICON },
+    { label: "Upcoming Trips", icon: CALENDAR_ICON },
+    { label: "Travelers Abroad", icon: MAP_PIN_ICON },
+    { label: "Open Bookings", icon: BRIEFCASE_ICON },
+]
+const TM_COORD_Q2_CHIPS: Chip[] = [
+    { label: "Alert Mr. Dev so he can reschedule his meeting", icon: USERS_ICON },
+    { label: "Keep looking for options and then inform him once found", icon: REFRESH_ICON },
+    { label: "All of the above", icon: CHECK_ICON },
+]
+const YES_NO_CHIPS: Chip[] = [
+    { label: "Yes", icon: CHECK_ICON },
+    { label: "No", icon: CLOSE_ICON },
+]
+const TM_MGR_Q1_CHIPS: Chip[] = [
+    { label: "Pending Approvals", icon: CHECK_ICON },
+    { label: "Trip Requests", icon: PLANE_ICON },
+    { label: "Budget & Spend", icon: RECEIPT_ICON },
+    { label: "Policy & Savings", icon: BRIEFCASE_ICON },
+]
+const TM_MGR_APPROVAL_CHIPS: Chip[] = [
+    { label: "Yes, auto-approve low risk", icon: CHECK_ICON },
+    { label: "No, I'll review everything", icon: CLOSE_ICON },
+]
+const TM_MGR_BUDGET_CHIPS: Chip[] = [
+    { label: "Yes, email me weekly", icon: CHECK_ICON },
+    { label: "No, I'll check manually", icon: CLOSE_ICON },
+]
+const TM_PEOPLE_Q1_CHIPS: Chip[] = [
+    { label: "Compliance checklist", icon: CHECK_ICON },
+    { label: "Live traveler locations", icon: MAP_PIN_ICON },
+    { label: "Traveller Calendars", icon: CALENDAR_ICON },
+]
+const TM_PEOPLE_Q2_CHIPS: Chip[] = [
+    { label: "Yes, alert me", icon: CHECK_ICON },
+    { label: "No, just show data", icon: CLOSE_ICON },
+]
+const TM_WRAP_CHIPS: Chip[] = [
+    { label: "Check another category", icon: REFRESH_ICON },
+    { label: "Back to Main Menu", icon: CLOSE_ICON },
+]
+
+const TM_COORD_DASHBOARD: V2Card[] = [
+    { kind: "stat", label: "Active Trips", value: "12" },
+    { kind: "stat", label: "Upcoming Trips", value: "8" },
+    { kind: "stat", label: "Travelers Abroad", value: "5" },
+    { kind: "stat", label: "Open Bookings", value: "3" },
+]
+
+const TM_PROMPTS: Record<TMStepId, string> = {
+    "tm-role": "As a Travel Manager, I tailor what I show you based on what you actually handle day-to-day. How would you define your role?",
+    "tm-coord-q1": "What would you like to check right now?",
+    "tm-coord-q2": "The flight booking for Mr. Dev for Delhi to Singapore is delayed by 3 hours due to technical issues. I'm looking for alternatives for him, until then, what would you want me to do?",
+    "tm-coord-q3": "I've found an alternative and shared it with him for final approval before we book. I'll process the refund for the previous booking as well. Would you want me to go ahead?",
+    "tm-coord-wrap": "Want to check another category, or head back?",
+    "tm-mgr-q1": "What do you want to look at first?",
+    "tm-mgr-q2-approval": "Would you like low-risk trips to auto-approve so they don't pile up here?",
+    "tm-mgr-q2-budget": "Want a weekly summary of this sent to you automatically?",
+    "tm-mgr-wrap": "Want to look at another area, or head back?",
+    "tm-people-q1": "What do you want to access today?",
+    "tm-people-q2": "Alert shared has been averted. Jenny in Marketing was flagged to not go ahead with the booking. Want me to share such high-risk zones and other compliance related status issues?",
+    "tm-people-wrap": "Want to check something else, or head back?",
+}
+
+// ─── Expense Management ─────────────────────────────────────────────────
+// Doc: pick a category (spend analytics / reimbursements / alerts / an
+// overview dashboard), each a flat menu-and-response tree with its own
+// wrap-up wording, looping back to that category's own first question
+// rather than the top-level menu.
+const EM_START_CHIPS: Chip[] = [
+    { label: "Spend Analytics", icon: RECEIPT_ICON },
+    { label: "Reimbursements", icon: CHECK_ICON },
+    { label: "Alerts & Settings", icon: BRIEFCASE_ICON },
+    { label: "Overview - Dashboard", icon: CALENDAR_ICON },
+]
+const EM_SPEND_Q1_CHIPS: Chip[] = [
+    { label: "6-month spend trend", icon: CALENDAR_ICON },
+    { label: "Category breakdown", icon: RECEIPT_ICON },
+    { label: "Savings recommendations", icon: CHECK_ICON },
+]
+const EM_SPEND_CATEGORY_CHIPS: Chip[] = [
+    { label: "Flights", icon: PLANE_ICON },
+    { label: "Hotels", icon: BUILDING_ICON },
+    { label: "Rentals", icon: BRIEFCASE_ICON },
+    { label: "Food", icon: RECEIPT_ICON },
+    { label: "Miscellaneous", icon: CHECK_ICON },
+]
+const EM_SPEND_WRAP_CHIPS: Chip[] = [
+    { label: "Yes, another view", icon: REFRESH_ICON },
+    { label: "Back to Main Menu", icon: CLOSE_ICON },
+]
+const EM_REIMB_Q1_CHIPS: Chip[] = [
+    { label: "Pending", icon: REFRESH_ICON },
+    { label: "Approved", icon: CHECK_ICON },
+    { label: "Paid", icon: CHECK_ICON },
+    { label: "Full pipeline", icon: MAP_PIN_ICON },
+]
+const EM_REIMB_WRAP_CHIPS: Chip[] = [
+    { label: "Check another stage", icon: REFRESH_ICON },
+    { label: "Back to Main Menu", icon: CLOSE_ICON },
+]
+const EM_ALERTS_Q1_CHIPS: Chip[] = [
+    { label: "Reimbursement alerts", icon: CHECK_ICON },
+    { label: "Budget alerts", icon: RECEIPT_ICON },
+    { label: "Card alerts", icon: BRIEFCASE_ICON },
+    { label: "All of the above", icon: CHECK_ICON },
+]
+const EM_ALERTS_WRAP_CHIPS: Chip[] = [
+    { label: "Yes, another alert", icon: REFRESH_ICON },
+    { label: "Back to Main Menu", icon: CLOSE_ICON },
+]
+const EM_OVERVIEW_WRAP_CHIPS: Chip[] = [
+    { label: "Check another view", icon: REFRESH_ICON },
+    { label: "Back to Main Menu", icon: CLOSE_ICON },
+]
+
+const EM_OVERVIEW_DASHBOARD: V2Card[] = [
+    { kind: "stat", label: "Total Spend (MTD)", value: "$182K" },
+    { kind: "stat", label: "Pending Reimbursements", value: "24" },
+    { kind: "stat", label: "Active Alerts", value: "3" },
+    { kind: "stat", label: "Compliance Score", value: "94%" },
+]
+const EM_TREND_CARDS: V2Card[] = [
+    { kind: "stat", label: "6-Month Spend", value: "$412K" },
+    { kind: "stat", label: "MoM Change", value: "+8%" },
+    { kind: "stat", label: "Top Category", value: "Flights" },
+]
+const EM_CATEGORY_VALUES: Record<string, string> = {
+    "Flights": "$68K",
+    "Hotels": "$41K",
+    "Rentals": "$12K",
+    "Food": "$9K",
+    "Miscellaneous": "$5K",
+}
+const EM_REIMB_TEXT: Record<string, string> = {
+    "Pending": "Here's what's waiting on review.",
+    "Approved": "Reimbursements that were approved, cleared and queued for payout.",
+    "Paid": "Bills that are already settled.",
+    "Full pipeline": "Here's the whole pipeline, end to end.",
+}
+const EM_ALERTS_TEXT: Record<string, string> = {
+    "Reimbursement alerts": "Done. I'll notify you when a claim is submitted or needs your action.",
+    "Budget alerts": "Done. I'll flag you the moment a department nears or exceeds budget.",
+    "Card alerts": "Done. I'll alert you on unusual or flagged card activity.",
+    "All of the above": "Done, you're covered across reimbursements, budget, and card activity.",
+}
+
+const EM_PROMPTS: Record<EMStepId, string> = {
+    "em-start": "I can show you spend, reimbursements, or company-wide analytics. What do you want to access today?",
+    "em-spend-q1": "What would you like to dig into?",
+    "em-spend-category": "Which category do you want to break down?",
+    "em-spend-wrap": "Check something else here?",
+    "em-reimb-q1": "Which stage do you want to check?",
+    "em-reimb-wrap": "Check another stage, or head back?",
+    "em-alerts-q1": "Which alerts would you like to turn on?",
+    "em-alerts-wrap": "Set up another alert, or head back?",
+    "em-overview-wrap": "Check something else, or head back?",
+}
+
+// ─── Administrator View ─────────────────────────────────────────────────
+// Doc: pick a section, each opening on a snapshot dashboard plus one
+// follow-up question that drills into it. Every path's follow-up choices —
+// including "No, that's enough" — just produce a line of copy and loop
+// back to that section's own dashboard question, with an added escape
+// hatch back to the main menu (the doc's own "Loops back" wording doesn't
+// specify one, but every other branch in this demo offers it).
+const AV_START_CHIPS: Chip[] = [
+    { label: "Budget & Spend", icon: RECEIPT_ICON },
+    { label: "Policy & Compliance", icon: CHECK_ICON },
+    { label: "Savings & Opportunities", icon: REFRESH_ICON },
+    { label: "Sustainability", icon: MAP_PIN_ICON },
+    { label: "Traveler Safety & Activity", icon: USERS_ICON },
+]
+const AV_BUDGET_Q2_CHIPS: Chip[] = [
+    { label: "By department", icon: USERS_ICON },
+    { label: "By category (Flights/Hotels/Ground)", icon: RECEIPT_ICON },
+    { label: "No, that's enough", icon: CHECK_ICON },
+]
+const AV_BUDGET_WRAP_CHIPS: Chip[] = [
+    { label: "Check another breakdown", icon: REFRESH_ICON },
+    { label: "Back to Main Menu", icon: CLOSE_ICON },
+]
+const AV_POLICY_Q2_CHIPS: Chip[] = [
+    { label: "Break down by department", icon: USERS_ICON },
+    { label: "Show top exceptions", icon: CHECK_ICON },
+    { label: "No, that's enough", icon: CLOSE_ICON },
+]
+const AV_POLICY_WRAP_CHIPS: Chip[] = [
+    { label: "Check another section", icon: REFRESH_ICON },
+    { label: "Back to Main Menu", icon: CLOSE_ICON },
+]
+const AV_SAVINGS_Q2_CHIPS: Chip[] = [
+    { label: "Top savers by department", icon: USERS_ICON },
+    { label: "Top savers by individual", icon: USERS_ICON },
+    { label: "No, that's enough", icon: CLOSE_ICON },
+]
+const AV_SAVINGS_WRAP_CHIPS: Chip[] = [
+    { label: "Check another view", icon: REFRESH_ICON },
+    { label: "Back to Main Menu", icon: CLOSE_ICON },
+]
+const AV_SUSTAIN_Q1_CHIPS: Chip[] = [
+    { label: "Total Emissions", icon: MAP_PIN_ICON },
+    { label: "YoY change", icon: REFRESH_ICON },
+    { label: "Progress vs Annual Target", icon: CHECK_ICON },
+]
+const AV_SUSTAIN_WRAP_CHIPS: Chip[] = [
+    { label: "Check another metric", icon: REFRESH_ICON },
+    { label: "Back to Main Menu", icon: CLOSE_ICON },
+]
+const AV_SAFETY_Q2_CHIPS: Chip[] = [
+    { label: "View live traveler map", icon: MAP_PIN_ICON },
+    { label: "View active alerts", icon: CHECK_ICON },
+    { label: "No, that's enough", icon: CLOSE_ICON },
+]
+const AV_SAFETY_WRAP_CHIPS: Chip[] = [
+    { label: "Check another view", icon: REFRESH_ICON },
+    { label: "Back to Main Menu", icon: CLOSE_ICON },
+]
+
+const AV_BUDGET_DASHBOARD: V2Card[] = [
+    { kind: "stat", label: "Budget Utilization", value: "78%" },
+    { kind: "stat", label: "vs Last Month", value: "+4%" },
+    { kind: "stat", label: "vs Quarter", value: "-2%" },
+    { kind: "stat", label: "Forecast vs Actual", value: "On track" },
+]
+const AV_POLICY_DASHBOARD: V2Card[] = [
+    { kind: "stat", label: "Overall Compliance Score", value: "91%" },
+    { kind: "stat", label: "Policy Exceptions", value: "14" },
+    { kind: "stat", label: "Violations This Month", value: "3" },
+]
+const AV_SAVINGS_DASHBOARD: V2Card[] = [
+    { kind: "stat", label: "Savings Identified", value: "$96K" },
+    { kind: "stat", label: "Savings Captured", value: "$61K" },
+    { kind: "stat", label: "Top Opportunity", value: "Consolidate hotel vendors · $8K/mo" },
+]
+const AV_SAFETY_DASHBOARD: V2Card[] = [
+    { kind: "stat", label: "Active Trips", value: "34" },
+    { kind: "stat", label: "Active Cities", value: "12" },
+    { kind: "stat", label: "Active Alerts", value: "2" },
+]
+const AV_SUSTAIN_VALUES: Record<string, string> = {
+    "Total Emissions": "1,240 tCO2e",
+    "YoY change": "-6%",
+    "Progress vs Annual Target": "72% complete",
+}
+
+const AV_BUDGET_TEXT: Record<string, string> = {
+    "By department": "Here's spend across your top departments, bar by bar.",
+    "By category (Flights/Hotels/Ground)": "Here's the split across Flights, Hotels, and Ground, a stacked view.",
+    "No, that's enough": "Got it. Anything else you'd like a snapshot of?",
+}
+const AV_POLICY_TEXT: Record<string, string> = {
+    "Break down by department": "Here's compliance % across each department, you'll spot who needs attention.",
+    "Show top exceptions": "Here are the most frequent policy exceptions this month.",
+    "No, that's enough": "Got it — loop back anytime.",
+}
+const AV_SAVINGS_TEXT: Record<string, string> = {
+    "Top savers by department": "Here are your top 4 departments by savings generated.",
+    "Top savers by individual": "Here are your top 4 individual contributors to savings.",
+    "No, that's enough": "Got it — loop back anytime.",
+}
+const AV_SAFETY_TEXT: Record<string, string> = {
+    "View live traveler map": "Here's a live map to see who's active, in transit, checked in, or at meetings right now.",
+    "View active alerts": "Here's what's flagged: traveler, type of issue, destination, and status.",
+    "No, that's enough": "Got it — loop back anytime.",
+}
+
+const AV_PROMPTS: Record<AVStepId, string> = {
+    "av-start": "What section do you want to access today?",
+    "av-budget-q2": "Here's where things stand. Want to break this down further?",
+    "av-budget-wrap": "Anything else you'd like a snapshot of?",
+    "av-policy-q2": "Here's the picture. Want more detail?",
+    "av-policy-wrap": "Want to check something else, or head back?",
+    "av-savings-q2": "Here's your efficiency story. Want to see who's driving the savings?",
+    "av-savings-wrap": "Want to check something else, or head back?",
+    "av-sustain-q1": "I can show you the breakdown:",
+    "av-sustain-wrap": "Want to check something else, or head back?",
+    "av-safety-q2": "Here's what's live right now. Want to see more?",
+    "av-safety-wrap": "Want to check something else, or head back?",
+}
+
+// The doc's month → season line ("it's currently [season]") — computed from
+// the visitor's actual clock instead of hardcoded, so it stays right no
+// matter when the demo is run. Northern-hemisphere seasons, matching the
+// rest of the site's dates (e.g. the Forbes Singapore example elsewhere).
+function seasonNow(): string {
+    const m = new Date().getMonth()
+    if (m === 11 || m <= 1) return "winter"
+    if (m <= 4) return "spring"
+    if (m <= 7) return "summer"
+    return "autumn"
 }
 
 function v2ChipsFor(step: V2StepId): Chip[] {
     if (step === "start") return V2_TOP_CHIPS
-    if (step === "plan-trip") return V2_TRIP_CHIPS
+    if (step === "tj-role") return TJ_ROLE_CHIPS
+    if (step === "tj-destination") return TJ_DESTINATION_CHIPS
+    if (step === "tj-purpose") return TJ_PURPOSE_CHIPS
+    if (step === "tj-travelers") return TJ_TRAVELERS_CHIPS
+    if (step === "tj-action") return TJ_ACTION_CHIPS
+    if (step === "tj-hotel") return TJ_HOTEL_CHIPS
+    if (step === "tj-seat") return TJ_SEAT_CHIPS
+    if (step === "tj-next") return TJ_NEXT_CHIPS
+    if (step === "tm-role") return TM_ROLE_CHIPS
+    if (step === "tm-coord-q1") return TM_COORD_Q1_CHIPS
+    if (step === "tm-coord-q2") return TM_COORD_Q2_CHIPS
+    if (step === "tm-coord-q3") return YES_NO_CHIPS
+    if (step === "tm-coord-wrap") return TM_WRAP_CHIPS
+    if (step === "tm-mgr-q1") return TM_MGR_Q1_CHIPS
+    if (step === "tm-mgr-q2-approval") return TM_MGR_APPROVAL_CHIPS
+    if (step === "tm-mgr-q2-budget") return TM_MGR_BUDGET_CHIPS
+    if (step === "tm-mgr-wrap") return TM_WRAP_CHIPS
+    if (step === "tm-people-q1") return TM_PEOPLE_Q1_CHIPS
+    if (step === "tm-people-q2") return TM_PEOPLE_Q2_CHIPS
+    if (step === "tm-people-wrap") return TM_WRAP_CHIPS
+    if (step === "em-start") return EM_START_CHIPS
+    if (step === "em-spend-q1") return EM_SPEND_Q1_CHIPS
+    if (step === "em-spend-category") return EM_SPEND_CATEGORY_CHIPS
+    if (step === "em-spend-wrap") return EM_SPEND_WRAP_CHIPS
+    if (step === "em-reimb-q1") return EM_REIMB_Q1_CHIPS
+    if (step === "em-reimb-wrap") return EM_REIMB_WRAP_CHIPS
+    if (step === "em-alerts-q1") return EM_ALERTS_Q1_CHIPS
+    if (step === "em-alerts-wrap") return EM_ALERTS_WRAP_CHIPS
+    if (step === "em-overview-wrap") return EM_OVERVIEW_WRAP_CHIPS
+    if (step === "av-start") return AV_START_CHIPS
+    if (step === "av-budget-q2") return AV_BUDGET_Q2_CHIPS
+    if (step === "av-budget-wrap") return AV_BUDGET_WRAP_CHIPS
+    if (step === "av-policy-q2") return AV_POLICY_Q2_CHIPS
+    if (step === "av-policy-wrap") return AV_POLICY_WRAP_CHIPS
+    if (step === "av-savings-q2") return AV_SAVINGS_Q2_CHIPS
+    if (step === "av-savings-wrap") return AV_SAVINGS_WRAP_CHIPS
+    if (step === "av-sustain-q1") return AV_SUSTAIN_Q1_CHIPS
+    if (step === "av-sustain-wrap") return AV_SUSTAIN_WRAP_CHIPS
+    if (step === "av-safety-q2") return AV_SAFETY_Q2_CHIPS
+    if (step === "av-safety-wrap") return AV_SAFETY_WRAP_CHIPS
     if (step === "demo-done") return [{ label: "Start over", icon: REFRESH_ICON }]
     return []
+}
+
+// The Traveler Journey's confirmation card and the "Show me a sample
+// booking" chip both need a flight+hotel pair — one function, keyed off
+// whichever destination the visitor picked (or a generic pair if they chose
+// "Other destinations" or haven't answered yet).
+const TJ_DESTINATION_SAMPLES: Record<string, { route: string; hotel: string }> = {
+    "New York": { route: "→ JFK", hotel: "The Midtown Suites" },
+    "Dubai": { route: "→ DXB", hotel: "Jumeirah Beach Residence" },
+    "Singapore": { route: "→ SIN", hotel: "Marina Bay Sands" },
+}
+function sampleBookingCards(destination?: string): V2Card[] {
+    const sample = destination ? TJ_DESTINATION_SAMPLES[destination] : undefined
+    const place = destination && destination !== "Other destinations" ? destination : "your destination"
+    return [
+        { kind: "flight", airline: "Emirates · EK 202", route: sample?.route ?? `→ ${place}`, time: "Tue, 8:10 AM – 4:35 PM · Nonstop", price: "$620" },
+        { kind: "hotel", name: sample?.hotel ?? `${place} City Hotel`, meta: "0.3 mi from downtown · 4.6★ · in policy", price: "$219/night" },
+    ]
 }
 
 type DemoField = "name" | "email" | "size" | "mobile" | "message" | "datetime"
@@ -553,10 +970,17 @@ function splitChips(chips: Chip[]): [Chip[], Chip[]] {
 // convention as the rest of the demo script, rendered under V2's reply
 // bubble for the chips whose reply is a real booking result rather than
 // just a line of copy (see V2_REPLIES above).
-function V2ResultCard({ card }: { card: V2Card }) {
+function V2ResultCard({ card, index }: { card: V2Card; index: number }) {
+    const reduce = useReducedMotion()
+    const motionProps = reduce ? {} : {
+        initial: { opacity: 0, y: 12, scale: 0.98 },
+        animate: { opacity: 1, y: 0, scale: 1 },
+        transition: { duration: 0.35, delay: index * 0.09, ease: [0.22, 1, 0.36, 1] as const },
+        whileHover: { y: -3, boxShadow: "0 14px 30px rgba(69, 14, 20, .1)" },
+    }
     if (card.kind === "flight") {
         return (
-            <div className="v4-result-card">
+            <motion.div className="v4-result-card v4-result-card--flight" {...motionProps}>
                 <div className="v4-result-card__icon">{PLANE_ICON}</div>
                 <div className="v4-result-card__body">
                     <strong>{card.airline}</strong>
@@ -564,30 +988,43 @@ function V2ResultCard({ card }: { card: V2Card }) {
                     <span>{card.time}</span>
                 </div>
                 <div className="v4-result-card__price">{card.price}</div>
-            </div>
+            </motion.div>
         )
     }
     if (card.kind === "hotel") {
         return (
-            <div className="v4-result-card">
+            <motion.div className="v4-result-card v4-result-card--hotel" {...motionProps}>
                 <div className="v4-result-card__icon">{BUILDING_ICON}</div>
                 <div className="v4-result-card__body">
                     <strong>{card.name}</strong>
                     <span>{card.meta}</span>
                 </div>
                 <div className="v4-result-card__price">{card.price}</div>
-            </div>
+            </motion.div>
         )
     }
+    if (card.kind === "restaurant") {
+        return (
+            <motion.div className="v4-result-card v4-result-card--restaurant" {...motionProps}>
+                <div className="v4-result-card__icon">{MAP_PIN_ICON}</div>
+                <div className="v4-result-card__body">
+                    <strong>{card.name}</strong>
+                    <span>{card.meta}</span>
+                </div>
+                <div className="v4-result-card__price">{card.rating}</div>
+            </motion.div>
+        )
+    }
+    // "stat" — a dashboard-style number (active trips, savings, compliance
+    // score, ...) for the Travel Management / Admin View branches, where the
+    // doc's replies are metrics rather than a bookable result.
     return (
-        <div className="v4-result-card">
-            <div className="v4-result-card__icon">{MAP_PIN_ICON}</div>
+        <motion.div className="v4-result-card v4-result-card--stat" {...motionProps}>
             <div className="v4-result-card__body">
-                <strong>{card.name}</strong>
-                <span>{card.meta}</span>
+                <span>{card.label}</span>
+                <strong className="v4-result-card__stat-value">{card.value}</strong>
             </div>
-            <div className="v4-result-card__price">{card.rating}</div>
-        </div>
+        </motion.div>
     )
 }
 
@@ -607,12 +1044,19 @@ export function AvatarSpotlight() {
     const [step, setStep] = useState<TravellerStepId>("start")
     const [destination, setDestination] = useState("")
     const [v2Step, setV2Step] = useState<V2StepId>("start")
+    const [journey, setJourney] = useState<{ role?: string; destination?: string }>({})
     const [demoAnswers, setDemoAnswers] = useState<Partial<Record<DemoField, string>>>({})
     const [caption, setCaption] = useState(isV2 ? V2_START_CAPTION : TRAVELLER_STEPS.start.caption)
     const [value, setValue] = useState("")
     const [status, setStatus] = useState<"idle" | "thinking">("idle")
     const [filler, setFiller] = useState("")
     const [cards, setCards] = useState<V2Card[]>([])
+    // V2 only: the reference "Where do you need to be?" landing is what
+    // shows before the visitor has done anything. The instant they pick a
+    // chip or submit text, this flips and the existing chat UI below (same
+    // caption/chips/cards, unchanged) takes over — no new interaction logic,
+    // just a different first screen.
+    const [started, setStarted] = useState(false)
     const typedPlaceholder = useTypewriter(PLACEHOLDER_PROMPTS, !!reduce)
     const timer = useRef<number>(0)
 
@@ -626,8 +1070,10 @@ export function AvatarSpotlight() {
         setCards([])
         if (isV2) {
             setV2Step("start")
+            setJourney({})
             setDemoAnswers({})
             setCaption(V2_START_CAPTION)
+            setStarted(false)
             return
         }
         setStep("start")
@@ -639,16 +1085,29 @@ export function AvatarSpotlight() {
     // the "V2 hero demo" block near the top of this file).
     const v2Choose = (label: string) => {
         if (status === "thinking") return
+        setStarted(true)
         if (v2Step === "start") {
-            if (label === "Plan a trip") {
-                setV2Step("plan-trip")
-                setCaption("Sure — tell me the trip, or pick an example:")
+            if (label === "Travel Booking") {
+                setV2Step("tj-role")
+                setCaption(TJ_PROMPTS["tj-role"])
                 setCards([])
                 return
             }
-            if (label === "Book a demo") {
-                setV2Step("demo-name")
-                setCaption(DEMO_PROMPTS.name)
+            if (label === "Travel Management") {
+                setV2Step("tm-role")
+                setCaption(TM_PROMPTS["tm-role"])
+                setCards([])
+                return
+            }
+            if (label === "Expense Management") {
+                setV2Step("em-start")
+                setCaption(EM_PROMPTS["em-start"])
+                setCards([])
+                return
+            }
+            if (label === "Administrator View") {
+                setV2Step("av-start")
+                setCaption(AV_PROMPTS["av-start"])
                 setCards([])
                 return
             }
@@ -665,21 +1124,503 @@ export function AvatarSpotlight() {
             }, 550)
             return
         }
-        if (v2Step === "plan-trip") {
-            const reply = V2_REPLIES[label]
-            if (!reply) return
+        if (v2Step.startsWith("tj-")) { tjChoose(v2Step as TJStepId, label); return }
+        if (v2Step.startsWith("tm-")) { tmChoose(v2Step as TMStepId, label); return }
+        if (v2Step.startsWith("em-")) { emChoose(v2Step as EMStepId, label); return }
+        if (v2Step.startsWith("av-")) { avChoose(v2Step as AVStepId, label); return }
+        if (v2Step === "demo-done" && label === "Start over") { reset(); return }
+    }
+
+    // Traveler Journey — the "Travel Booking" branch of the doc. Role and
+    // destination advance with an acknowledgement line (shown via the same
+    // "thinking" filler beat as the rest of the demo); purpose/traveler
+    // count/hotel just advance straight to the next question, since the doc
+    // doesn't give Miraee a line for those. `tj-action` and `tj-next` each
+    // have chip-specific behaviour (diverting to the demo flow, restarting
+    // the journey, etc.) so they're handled explicitly rather than falling
+    // through to TJ_NEXT_STEP.
+    const tjChoose = (step: TJStepId, label: string) => {
+        if (step === "tj-role") {
+            setJourney(j => ({ ...j, role: label }))
             setStatus("thinking")
-            setFiller("Building the itinerary…")
+            setFiller(`Got it. I'll only show you flights and hotels your company allows at ${label} level, so you never accidentally book something out of policy.`)
             window.clearTimeout(timer.current)
             timer.current = window.setTimeout(() => {
-                setCaption(reply.text)
-                setCards(reply.cards ?? [])
+                setV2Step("tj-destination")
+                setCaption(TJ_PROMPTS["tj-destination"])
                 setStatus("idle")
-                setV2Step("start")
-            }, 650)
+            }, 750)
             return
         }
-        if (v2Step === "demo-done" && label === "Start over") { reset(); return }
+        if (step === "tj-destination") {
+            setJourney(j => ({ ...j, destination: label }))
+            setStatus("thinking")
+            setFiller(`Good choice. Quick note — I can show you local pricing alongside your home currency so there's no confusion, check if you need a visa, and it's currently ${seasonNow()} so I'd suggest you pack accordingly.`)
+            window.clearTimeout(timer.current)
+            timer.current = window.setTimeout(() => {
+                setV2Step("tj-purpose")
+                setCaption(TJ_PROMPTS["tj-purpose"])
+                setStatus("idle")
+            }, 750)
+            return
+        }
+        if (step === "tj-action") {
+            if (label === "Book a demo") {
+                setV2Step("demo-name")
+                setCaption(DEMO_PROMPTS.name)
+                setCards([])
+                return
+            }
+            // "For Finance teams" (and "Plan a trip"/"Book a flight"/"Find a
+            // hotel near my meeting") all continue straight into hotel prefs
+            // per the doc — "Book a demo" is the only chip here that
+            // branches away from the journey.
+            setV2Step("tj-hotel")
+            setCaption(TJ_PROMPTS["tj-hotel"])
+            return
+        }
+        if (step === "tj-seat") {
+            setStatus("thinking")
+            setFiller("Perfect. I'll prioritize itineraries that match this and remember that for your future trips.")
+            window.clearTimeout(timer.current)
+            timer.current = window.setTimeout(() => {
+                setV2Step("tj-next")
+                setCaption("Your booking has been made. Please let me know if you'd like me to book car rentals for your trip? You can access your trip itinerary in the \"My Trips\" section.")
+                setCards(sampleBookingCards(journey.destination))
+                setStatus("idle")
+            }, 750)
+            return
+        }
+        if (step === "tj-next") {
+            if (label === "Book another trip") {
+                setJourney({})
+                setV2Step("tj-role")
+                setCaption(TJ_PROMPTS["tj-role"])
+                setCards([])
+                return
+            }
+            if (label === "Show me a sample booking") {
+                setCaption("Here's a sample booking:")
+                setCards(sampleBookingCards(journey.destination))
+                return
+            }
+            if (label === "Access my trips") {
+                setCaption("This is a demo, so there's nothing to open yet — in the real product this opens My Trips with every upcoming and past booking.")
+                setCards([])
+                return
+            }
+            if (label === "Back to the Main Menu") {
+                setV2Step("start")
+                setCaption(V2_START_CAPTION)
+                setCards([])
+                return
+            }
+            return
+        }
+        // tj-purpose, tj-travelers, tj-hotel: no doc-specified acknowledgement,
+        // so just advance straight to the next question.
+        const next = TJ_NEXT_STEP[step]
+        if (!next) return
+        setV2Step(next)
+        setCaption(TJ_PROMPTS[next])
+    }
+
+    // Travel Management — three role-specific trees (see the "Travel
+    // Management" config above) that all end on the same "check another
+    // category or head back" wrap-up. That wrap-up loops back to the
+    // current role's own Q1, not to the role picker — a manager checking
+    // "another category" stays a manager.
+    const tmChoose = (step: TMStepId, label: string) => {
+        if (step === "tm-role") {
+            if (label === "Travel Coordinator") {
+                setV2Step("tm-coord-q1")
+                setCaption(TM_PROMPTS["tm-coord-q1"])
+                setCards(TM_COORD_DASHBOARD)
+                return
+            }
+            if (label === "People Officer") {
+                setV2Step("tm-people-q1")
+                setCaption(TM_PROMPTS["tm-people-q1"])
+                setCards([])
+                return
+            }
+            // Manager
+            setV2Step("tm-mgr-q1")
+            setCaption(TM_PROMPTS["tm-mgr-q1"])
+            setCards([])
+            return
+        }
+
+        // ── Travel Coordinator ──
+        if (step === "tm-coord-q1") {
+            setV2Step("tm-coord-q2")
+            setCaption(TM_PROMPTS["tm-coord-q2"])
+            setCards([])
+            return
+        }
+        if (step === "tm-coord-q2") {
+            setV2Step("tm-coord-q3")
+            setCaption(TM_PROMPTS["tm-coord-q3"])
+            return
+        }
+        if (step === "tm-coord-q3") {
+            setStatus("thinking")
+            setFiller(label === "Yes"
+                ? "Done — alternative booked, and the refund for the original ticket is processed."
+                : "Understood — I'll hold off for now. Let me know when you're ready to go ahead.")
+            window.clearTimeout(timer.current)
+            timer.current = window.setTimeout(() => {
+                setV2Step("tm-coord-wrap")
+                setCaption(TM_PROMPTS["tm-coord-wrap"])
+                setStatus("idle")
+            }, 700)
+            return
+        }
+        if (step === "tm-coord-wrap") {
+            if (label === "Check another category") {
+                setV2Step("tm-coord-q1")
+                setCaption(TM_PROMPTS["tm-coord-q1"])
+                setCards(TM_COORD_DASHBOARD)
+                return
+            }
+            setV2Step("start")
+            setCaption(V2_START_CAPTION)
+            setCards([])
+            return
+        }
+
+        // ── Manager ──
+        if (step === "tm-mgr-q1") {
+            const isApprovalTrack = label === "Pending Approvals" || label === "Trip Requests"
+            const next: TMStepId = isApprovalTrack ? "tm-mgr-q2-approval" : "tm-mgr-q2-budget"
+            setV2Step(next)
+            setCaption(TM_PROMPTS[next])
+            return
+        }
+        if (step === "tm-mgr-q2-approval" || step === "tm-mgr-q2-budget") {
+            setStatus("thinking")
+            setFiller(label.startsWith("Yes") ? "Done — set up." : "Got it — you're in control of that.")
+            window.clearTimeout(timer.current)
+            timer.current = window.setTimeout(() => {
+                setV2Step("tm-mgr-wrap")
+                setCaption(TM_PROMPTS["tm-mgr-wrap"])
+                setStatus("idle")
+            }, 600)
+            return
+        }
+        if (step === "tm-mgr-wrap") {
+            if (label === "Check another category") {
+                setV2Step("tm-mgr-q1")
+                setCaption(TM_PROMPTS["tm-mgr-q1"])
+                return
+            }
+            setV2Step("start")
+            setCaption(V2_START_CAPTION)
+            setCards([])
+            return
+        }
+
+        // ── People Officer ──
+        if (step === "tm-people-q1") {
+            setV2Step("tm-people-q2")
+            setCaption(TM_PROMPTS["tm-people-q2"])
+            return
+        }
+        if (step === "tm-people-q2") {
+            setStatus("thinking")
+            setFiller(label === "Yes, alert me"
+                ? "Done — I'll flag high-risk zones and compliance issues the moment they come up."
+                : "Understood — I'll keep the data visible without pushing alerts.")
+            window.clearTimeout(timer.current)
+            timer.current = window.setTimeout(() => {
+                setV2Step("tm-people-wrap")
+                setCaption(TM_PROMPTS["tm-people-wrap"])
+                setStatus("idle")
+            }, 600)
+            return
+        }
+        if (step === "tm-people-wrap") {
+            if (label === "Check another category") {
+                setV2Step("tm-people-q1")
+                setCaption(TM_PROMPTS["tm-people-q1"])
+                return
+            }
+            setV2Step("start")
+            setCaption(V2_START_CAPTION)
+            setCards([])
+            return
+        }
+    }
+
+    // Expense Management — four flat menus (spend / reimbursements / alerts
+    // / overview), each wrapping back to its own first question rather than
+    // the category picker.
+    const emChoose = (step: EMStepId, label: string) => {
+        if (step === "em-start") {
+            if (label === "Spend Analytics") {
+                setV2Step("em-spend-q1")
+                setCaption(EM_PROMPTS["em-spend-q1"])
+                setCards([])
+                return
+            }
+            if (label === "Reimbursements") {
+                setV2Step("em-reimb-q1")
+                setCaption(EM_PROMPTS["em-reimb-q1"])
+                setCards([])
+                return
+            }
+            if (label === "Alerts & Settings") {
+                setV2Step("em-alerts-q1")
+                setCaption(EM_PROMPTS["em-alerts-q1"])
+                setCards([])
+                return
+            }
+            // Overview - Dashboard: doc has no further question, just the
+            // snapshot and a wrap-up.
+            setV2Step("em-overview-wrap")
+            setCaption(EM_PROMPTS["em-overview-wrap"])
+            setCards(EM_OVERVIEW_DASHBOARD)
+            return
+        }
+
+        // ── Spend Analytics ──
+        if (step === "em-spend-q1") {
+            if (label === "Category breakdown") {
+                setV2Step("em-spend-category")
+                setCaption(EM_PROMPTS["em-spend-category"])
+                setCards([])
+                return
+            }
+            const isTrend = label === "6-month spend trend"
+            setStatus("thinking")
+            setFiller(isTrend ? "Pulling up your 6-month spend trend…" : "One moment…")
+            window.clearTimeout(timer.current)
+            timer.current = window.setTimeout(() => {
+                if (isTrend) {
+                    setCaption("Here's your 6-month spend trend.")
+                    setCards(EM_TREND_CARDS)
+                } else {
+                    setCaption("I learnt that we could save more by keeping a tab on the number of trips per user per client, which will help us save more from unnecessary trips per month.")
+                    setCards([])
+                }
+                setV2Step("em-spend-wrap")
+                setStatus("idle")
+            }, 700)
+            return
+        }
+        if (step === "em-spend-category") {
+            const value = EM_CATEGORY_VALUES[label] ?? "—"
+            setCaption(`${label} spend this month: ${value}.`)
+            setCards([{ kind: "stat", label: `${label} Spend`, value }])
+            setV2Step("em-spend-wrap")
+            return
+        }
+        if (step === "em-spend-wrap") {
+            if (label === "Yes, another view") {
+                setV2Step("em-spend-q1")
+                setCaption(EM_PROMPTS["em-spend-q1"])
+                setCards([])
+                return
+            }
+            setV2Step("start")
+            setCaption(V2_START_CAPTION)
+            setCards([])
+            return
+        }
+
+        // ── Reimbursements ──
+        if (step === "em-reimb-q1") {
+            setCaption(EM_REIMB_TEXT[label] ?? "")
+            setCards([])
+            setV2Step("em-reimb-wrap")
+            return
+        }
+        if (step === "em-reimb-wrap") {
+            if (label === "Check another stage") {
+                setV2Step("em-reimb-q1")
+                setCaption(EM_PROMPTS["em-reimb-q1"])
+                return
+            }
+            setV2Step("start")
+            setCaption(V2_START_CAPTION)
+            setCards([])
+            return
+        }
+
+        // ── Alerts & Settings ──
+        if (step === "em-alerts-q1") {
+            setStatus("thinking")
+            setFiller("Setting that up…")
+            window.clearTimeout(timer.current)
+            timer.current = window.setTimeout(() => {
+                setCaption(EM_ALERTS_TEXT[label] ?? "Done.")
+                setV2Step("em-alerts-wrap")
+                setStatus("idle")
+            }, 600)
+            return
+        }
+        if (step === "em-alerts-wrap") {
+            if (label === "Yes, another alert") {
+                setV2Step("em-alerts-q1")
+                setCaption(EM_PROMPTS["em-alerts-q1"])
+                return
+            }
+            setV2Step("start")
+            setCaption(V2_START_CAPTION)
+            setCards([])
+            return
+        }
+
+        // ── Overview - Dashboard ──
+        if (step === "em-overview-wrap") {
+            if (label === "Check another view") {
+                setV2Step("em-start")
+                setCaption(EM_PROMPTS["em-start"])
+                setCards([])
+                return
+            }
+            setV2Step("start")
+            setCaption(V2_START_CAPTION)
+            setCards([])
+            return
+        }
+    }
+
+    // Administrator View — five dashboard sections, each with one follow-up
+    // question that drills into it and loops back to that same dashboard.
+    const avChoose = (step: AVStepId, label: string) => {
+        if (step === "av-start") {
+            if (label === "Budget & Spend") {
+                setV2Step("av-budget-q2")
+                setCaption(AV_PROMPTS["av-budget-q2"])
+                setCards(AV_BUDGET_DASHBOARD)
+                return
+            }
+            if (label === "Policy & Compliance") {
+                setV2Step("av-policy-q2")
+                setCaption(AV_PROMPTS["av-policy-q2"])
+                setCards(AV_POLICY_DASHBOARD)
+                return
+            }
+            if (label === "Savings & Opportunities") {
+                setV2Step("av-savings-q2")
+                setCaption(AV_PROMPTS["av-savings-q2"])
+                setCards(AV_SAVINGS_DASHBOARD)
+                return
+            }
+            if (label === "Sustainability") {
+                setV2Step("av-sustain-q1")
+                setCaption(AV_PROMPTS["av-sustain-q1"])
+                setCards([])
+                return
+            }
+            // Traveler Safety & Activity
+            setV2Step("av-safety-q2")
+            setCaption(AV_PROMPTS["av-safety-q2"])
+            setCards(AV_SAFETY_DASHBOARD)
+            return
+        }
+
+        // ── Budget & Spend ──
+        if (step === "av-budget-q2") {
+            setCaption(AV_BUDGET_TEXT[label] ?? "")
+            setCards([])
+            setV2Step("av-budget-wrap")
+            return
+        }
+        if (step === "av-budget-wrap") {
+            if (label === "Check another breakdown") {
+                setV2Step("av-budget-q2")
+                setCaption(AV_PROMPTS["av-budget-q2"])
+                setCards(AV_BUDGET_DASHBOARD)
+                return
+            }
+            setV2Step("start")
+            setCaption(V2_START_CAPTION)
+            setCards([])
+            return
+        }
+
+        // ── Policy & Compliance ──
+        if (step === "av-policy-q2") {
+            setCaption(AV_POLICY_TEXT[label] ?? "")
+            setCards([])
+            setV2Step("av-policy-wrap")
+            return
+        }
+        if (step === "av-policy-wrap") {
+            if (label === "Check another section") {
+                setV2Step("av-policy-q2")
+                setCaption(AV_PROMPTS["av-policy-q2"])
+                setCards(AV_POLICY_DASHBOARD)
+                return
+            }
+            setV2Step("start")
+            setCaption(V2_START_CAPTION)
+            setCards([])
+            return
+        }
+
+        // ── Savings & Opportunities ──
+        if (step === "av-savings-q2") {
+            setCaption(AV_SAVINGS_TEXT[label] ?? "")
+            setCards([])
+            setV2Step("av-savings-wrap")
+            return
+        }
+        if (step === "av-savings-wrap") {
+            if (label === "Check another view") {
+                setV2Step("av-savings-q2")
+                setCaption(AV_PROMPTS["av-savings-q2"])
+                setCards(AV_SAVINGS_DASHBOARD)
+                return
+            }
+            setV2Step("start")
+            setCaption(V2_START_CAPTION)
+            setCards([])
+            return
+        }
+
+        // ── Sustainability ──
+        if (step === "av-sustain-q1") {
+            const value = AV_SUSTAIN_VALUES[label] ?? "—"
+            setCaption(`${label}: ${value}`)
+            setCards([{ kind: "stat", label, value }])
+            setV2Step("av-sustain-wrap")
+            return
+        }
+        if (step === "av-sustain-wrap") {
+            if (label === "Check another metric") {
+                setV2Step("av-sustain-q1")
+                setCaption(AV_PROMPTS["av-sustain-q1"])
+                setCards([])
+                return
+            }
+            setV2Step("start")
+            setCaption(V2_START_CAPTION)
+            setCards([])
+            return
+        }
+
+        // ── Traveler Safety & Activity ──
+        if (step === "av-safety-q2") {
+            setCaption(AV_SAFETY_TEXT[label] ?? "")
+            setCards([])
+            setV2Step("av-safety-wrap")
+            return
+        }
+        if (step === "av-safety-wrap") {
+            if (label === "Check another view") {
+                setV2Step("av-safety-q2")
+                setCaption(AV_PROMPTS["av-safety-q2"])
+                setCards(AV_SAFETY_DASHBOARD)
+                return
+            }
+            setV2Step("start")
+            setCaption(V2_START_CAPTION)
+            setCards([])
+            return
+        }
     }
 
     // V2's "Book a demo" lead capture — one field per turn (see DEMO_FIELDS),
@@ -690,6 +1631,7 @@ export function AvatarSpotlight() {
         const trimmed = text.trim()
         if (!trimmed || status === "thinking") return
         setValue("")
+        setStarted(true)
 
         if (v2Step.startsWith("demo-") && v2Step !== "demo-done") {
             const field = v2Step.slice(5) as DemoField
@@ -797,15 +1739,35 @@ export function AvatarSpotlight() {
             initial={reduce ? undefined : { opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.28 }}>
-            {status === "thinking" ? filler : caption}
+            {status === "thinking" ? (
+                isV2 ? (
+                    <span className="v4-thinking">
+                        {filler}
+                        <span className="v4-thinking__dots" aria-hidden="true"><i /><i /><i /></span>
+                    </span>
+                ) : filler
+            ) : caption}
         </motion.span>
     )
 
     const chips = isV2 ? v2ChipsFor(v2Step) : TRAVELLER_STEPS[step].chips
     const [leftChips, rightChips] = splitChips(chips)
 
-    return (
-        <section className="v4-avatar-spotlight">
+    // Shared by V1 (always shown) and V2's post-interaction state — kept as
+    // one piece of markup so the two can never drift apart, rather than
+    // duplicating it into both branches below.
+    const chatContent = (
+        <div className="v4-shell v4-avatar-spotlight__row">
+            {/* Back to the landing screen — only meaningful for V2, which is
+                the only version with a distinct "before you've done anything"
+                screen to go back to. Resets the whole demo, not just the
+                current step, so it always lands on a clean start. */}
+            {isV2 && (
+                <button type="button" className="v4-chat-back" onClick={reset}>
+                    {BACK_ICON}<span>Start over</span>
+                </button>
+            )}
+
             {/* Chips are the current script node's quick-reply options
                 (TRAVELLER_STEPS[step].chips), split across the two fixed
                 columns flanking the portrait — see splitChips() above. The
@@ -813,56 +1775,105 @@ export function AvatarSpotlight() {
                 fixed-width flex children (not `1fr` grid tracks), so it
                 stays anchored close to the portrait instead of stretching
                 the chips out to the viewport edges on wide screens. */}
-            <div className="v4-shell v4-avatar-spotlight__row">
-                <div className="v4-assistant__chips v4-avatar-spotlight__chips">
-                    {leftChips.map(q => (
-                        <button type="button" key={q.label} onClick={() => choose(q.label)}>
-                            {q.icon}<span>{q.label}</span>
-                        </button>
-                    ))}
+            <div className="v4-assistant__chips v4-avatar-spotlight__chips">
+                {leftChips.map(q => (
+                    <button type="button" key={q.label} onClick={() => choose(q.label)}>
+                        {q.icon}<span>{q.label}</span>
+                    </button>
+                ))}
+            </div>
+
+            <div className="v4-avatar-spotlight__stage">
+                <div className="v4-assistant__frame v4-assistant__frame--lg" aria-hidden="true">
+                    <motion.img className="v4-assistant__photo--lg" src={avatarImg} alt=""
+                        animate={reduce ? undefined : { scale: [1, 1.012, 1] }}
+                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} />
+                    <span className="v4-assistant__frame-glow" aria-hidden="true" />
                 </div>
 
-                <div className="v4-avatar-spotlight__stage">
-                    <div className="v4-assistant__frame v4-assistant__frame--lg" aria-hidden="true">
-                        <motion.img className="v4-assistant__photo--lg" src={avatarImg} alt=""
-                            animate={reduce ? undefined : { scale: [1, 1.012, 1] }}
-                            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} />
-                        <span className="v4-assistant__frame-glow" aria-hidden="true" />
+                <p className="v4-avatar-spotlight__caption" aria-live="polite">{captionEl}</p>
+
+                {isV2 && cards.length > 0 && (
+                    <div className="v4-result-cards">
+                        {cards.map((c, i) => <V2ResultCard key={i} card={c} index={i} />)}
                     </div>
+                )}
 
-                    <p className="v4-avatar-spotlight__caption" aria-live="polite">{captionEl}</p>
+                <form className="v4-assistant__form v4-avatar-spotlight__form" onSubmit={e => { e.preventDefault(); submitText(value) }}>
+                <div className="v4-assistant__input-wrap">
+                    <input
+                        type="text"
+                        value={value}
+                        onChange={e => setValue(e.target.value)}
+                        placeholder=""
+                        aria-label="Tell Miraee about your trip"
+                    />
+                    <AnimatedPlaceholder text={typedPlaceholder} show={!value} />
+                </div>
+                <button type="button" className="v4-assistant__mic" aria-label="Try a sample voice prompt"
+                    onClick={() => chips[0] && choose(chips[0].label)}>{MIC_ICON}</button>
+                <button type="submit" className="v4-assistant__send" aria-label="Send" disabled={!value.trim() || status === "thinking"}>{SEND_ICON}</button>
+                </form>
+            </div>
 
-                    {isV2 && cards.length > 0 && (
-                        <div className="v4-result-cards">
-                            {cards.map((c, i) => <V2ResultCard key={i} card={c} />)}
-                        </div>
-                    )}
+            <div className="v4-assistant__chips v4-assistant__chips--right v4-avatar-spotlight__chips">
+                {rightChips.map(q => (
+                    <button type="button" key={q.label} onClick={() => choose(q.label)}>
+                        {q.icon}<span>{q.label}</span>
+                    </button>
+                ))}
+            </div>
+        </div>
+    )
 
-                    <form className="v4-assistant__form v4-avatar-spotlight__form" onSubmit={e => { e.preventDefault(); submitText(value) }}>
+    if (!isV2) {
+        return <section className="v4-avatar-spotlight">{chatContent}</section>
+    }
+
+    // V2: landing and chat swap with a pure-CSS enter animation (see
+    // .v4-hero-fade-in in V4.css) — a plain conditional render, not
+    // AnimatePresence. Nothing here waits on a JS animation lifecycle to
+    // "complete" before mounting the next state, so there's no way for the
+    // swap to get stuck the way an exit-animation-gated unmount can.
+    if (!started) {
+        return (
+            <section className="v4-hero-landing v4-hero-fade-in">
+                <div className="v4-hero-landing__avatar-wrap">
+                    <img className="v4-hero-landing__avatar" src={avatarImg} alt="" />
+                    <span className="v4-hero-landing__status" aria-hidden="true" />
+                </div>
+                <h1 className="v4-hero-landing__title">Hi, I'm Miraee 👋 Hope you're doing well!</h1>
+                <p className="v4-hero-landing__subtitle">I help make business travel simple for travelers, travel managers, and expense managers. How would you like to experience Miraee today?</p>
+
+                <form className="v4-hero-landing__search" onSubmit={e => { e.preventDefault(); submitText(value) }}>
                     <div className="v4-assistant__input-wrap">
                         <input
                             type="text"
                             value={value}
                             onChange={e => setValue(e.target.value)}
-                            placeholder=""
-                            aria-label="Tell Miraee about your trip"
+                            placeholder="Describe your trip, route, dates, or hotel needs…"
+                            aria-label="Describe your trip, route, dates, or hotel needs"
                         />
-                        <AnimatedPlaceholder text={typedPlaceholder} show={!value} />
                     </div>
-                    <button type="button" className="v4-assistant__mic" aria-label="Try a sample voice prompt"
+                    <button type="button" className="v4-hero-landing__mic" aria-label="Try a sample voice prompt"
                         onClick={() => chips[0] && choose(chips[0].label)}>{MIC_ICON}</button>
-                    <button type="submit" className="v4-assistant__send" aria-label="Send" disabled={!value.trim() || status === "thinking"}>{SEND_ICON}</button>
-                    </form>
-                </div>
+                    <button type="submit" className="v4-hero-landing__send" aria-label="Send" disabled={!value.trim()}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
+                    </button>
+                </form>
 
-                <div className="v4-assistant__chips v4-assistant__chips--right v4-avatar-spotlight__chips">
-                    {rightChips.map(q => (
-                        <button type="button" key={q.label} onClick={() => choose(q.label)}>
-                            {q.icon}<span>{q.label}</span>
+                <div className="v4-hero-landing__chips">
+                    {chips.map(c => (
+                        <button type="button" key={c.label}
+                            className={"v4-hero-landing__chip" + (c.label === "Book a demo" ? " v4-hero-landing__chip--dark" : "")}
+                            onClick={() => choose(c.label)}>
+                            {c.icon}<span>{c.label}</span>
                         </button>
                     ))}
                 </div>
-            </div>
-        </section>
-    )
+            </section>
+        )
+    }
+
+    return <section className="v4-avatar-spotlight v4-hero-fade-in">{chatContent}</section>
 }
