@@ -8,10 +8,10 @@ import employeeAvatar from "../../assets/miraee-role-employee.png"
 import financeAvatar from "../../assets/Finance .jpg"
 import managerAvatar from "../../assets/Manager Image.jpg"
 import adminAvatar from "../../assets/Admin.jpg"
-import planStepPhoto from "../../assets/platform_hero_image .jpg"
-import bookStepPhoto from "../../assets/post-5pm.jpg"
-import expenseStepPhoto from "../../assets/expenses.jpg"
-import changeStepPhoto from "../../assets/miraee-flight-cancelled-notification.png"
+import planStepPhoto from "../../assets/plan.webp"
+import bookStepPhoto from "../../assets/book.jpg"
+import expenseStepPhoto from "../../assets/expense11.jpg"
+import changeStepPhoto from "../../assets/manage.jpg"
 
 // Verbatim ports of the V0 homepage sections the site-architecture doc calls
 // for by name — layout and animation, not just the copy. Source is
@@ -177,14 +177,12 @@ const STEPS = [
 
 // One real photo per step, framed behind the chat-card mock — kept as a
 // side lookup (not merged into STEPS) so STEPS' own shape stays simple.
-// Change's is a phone-notification screenshot rather than a lifestyle photo
-// (it's the literal payoff of "self-rebooking"), so it gets object-fit:
-// contain instead of cover to avoid cropping the phone oddly.
+// All four are lifestyle photos, so all use object-fit: cover.
 const STEP_PHOTOS: { src: string; fit: "cover" | "contain" }[] = [
     { src: planStepPhoto, fit: "cover" },
     { src: bookStepPhoto, fit: "cover" },
     { src: expenseStepPhoto, fit: "cover" },
-    { src: changeStepPhoto, fit: "contain" },
+    { src: changeStepPhoto, fit: "cover" },
 ]
 
 // Per-step product vignette, rendered at >=1200px only.
