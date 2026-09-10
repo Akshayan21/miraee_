@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react"
-import type { ReactNode } from "react"
+import type { ReactNode, RefObject } from "react"
 import { motion, useReducedMotion } from "framer-motion"
 import { useLocation } from "react-router-dom"
 import { isV2Path } from "../../lib/v2"
 import avatarImg from "../../assets/Avatar.png"
+import financeDashboardImg from "../../assets/Finanec dashboard.png"
+import adminDashboardImg from "../../assets/admin_dashboard.png"
 
 // The right side of the homepage hero — a live-feeling voice/chat card.
 // Everything is genuinely interactive — typing, the quick-action chips and
@@ -58,6 +60,7 @@ const CLOSE_ICON = <svg width="16" height="16" viewBox="0 0 24 24" fill="none" s
 const BACK_ICON = <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
 const MAP_PIN_ICON = <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s7-7.58 7-13A7 7 0 0 0 5 9c0 5.42 7 13 7 13Z" /><circle cx="12" cy="9" r="2.5" /></svg>
 const USERS_ICON = <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="8" r="3" /><path d="M2 20c0-3.3 3-6 7-6s7 2.7 7 6" /><circle cx="17" cy="8" r="2.5" /><path d="M23 20c0-2.6-2-4.8-4.5-5.6" /></svg>
+const CHEVRON_DOWN_ICON = <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
 const CHECK_ICON = <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="m8 12 3 3 5-6" /></svg>
 
 const QUICK_PROMPTS: { label: string; prompt: string; icon: ReactNode }[] = [
@@ -204,7 +207,7 @@ function fillerFor(text: string): string {
 // out the same way, their chips just show a short one-line reply. Kept fully
 // separate from TRAVELLER_STEPS/TRAVELLER_NEXT so V1's script can never be
 // affected by changes made here.
-type TJStepId = "tj-role" | "tj-destination" | "tj-purpose" | "tj-travelers" | "tj-action" | "tj-hotel" | "tj-seat" | "tj-next"
+type TJStepId = "tj-role" | "tj-destination" | "tj-destination-continent" | "tj-destination-country" | "tj-purpose" | "tj-travelers" | "tj-action" | "tj-hotel" | "tj-seat" | "tj-next"
 type TMStepId =
     | "tm-role"
     | "tm-coord-q1" | "tm-coord-q2" | "tm-coord-q3" | "tm-coord-wrap"
@@ -242,6 +245,7 @@ type V2Card =
     | { kind: "hotel"; name: string; meta: string; price: string }
     | { kind: "restaurant"; name: string; meta: string; rating: string }
     | { kind: "stat"; label: string; value: string }
+    | { kind: "image"; src: string; alt: string }
 
 type V2Reply = { text: string; cards?: V2Card[] }
 
@@ -269,6 +273,18 @@ const TJ_DESTINATION_CHIPS: Chip[] = [
     { label: "Singapore", icon: MAP_PIN_ICON },
     { label: "Other destinations", icon: MAP_PIN_ICON },
 ]
+// "Other destinations" — picking a continent narrows things down before
+// asking for the actual city, rather than dropping straight into a blank
+// "where to?" with no structure.
+const CONTINENT_CHIPS: Chip[] = [
+    { label: "Africa", icon: MAP_PIN_ICON },
+    { label: "Antarctica", icon: MAP_PIN_ICON },
+    { label: "Asia", icon: MAP_PIN_ICON },
+    { label: "Europe", icon: MAP_PIN_ICON },
+    { label: "North America", icon: MAP_PIN_ICON },
+    { label: "Oceania", icon: MAP_PIN_ICON },
+    { label: "South America", icon: MAP_PIN_ICON },
+]
 const TJ_PURPOSE_CHIPS: Chip[] = [
     { label: "Client meeting", icon: BRIEFCASE_ICON },
     { label: "Business trip", icon: PLANE_ICON },
@@ -285,7 +301,6 @@ const TJ_ACTION_CHIPS: Chip[] = [
     { label: "Plan a trip", icon: PLANE_ICON },
     { label: "Book a flight", icon: PLANE_ICON },
     { label: "Find a hotel near my meeting", icon: BUILDING_ICON },
-    { label: "For Finance teams", icon: RECEIPT_ICON },
     { label: "Book a demo", icon: CALENDAR_ICON },
 ]
 const TJ_HOTEL_CHIPS: Chip[] = [
@@ -310,6 +325,11 @@ const TJ_NEXT_CHIPS: Chip[] = [
 const TJ_PROMPTS: Record<TJStepId, string> = {
     "tj-role": "Role in the organisation:",
     "tj-destination": "Please select your destination so I can find the accurate options for you:",
+    // Both overwritten with a specific line as soon as their step is
+    // reached (continent name / "which continent" wording) — these are
+    // just the Record's required fallback, never actually shown.
+    "tj-destination-continent": "Sure — which continent?",
+    "tj-destination-country": "Where would you like to go?",
     "tj-purpose": "What is the purpose of your trip?",
     "tj-travelers": "How many of you are traveling?",
     "tj-action": "Understood. What would you want me to do for you today?",
@@ -456,12 +476,6 @@ const EM_OVERVIEW_WRAP_CHIPS: Chip[] = [
     { label: "Back to Main Menu", icon: CLOSE_ICON },
 ]
 
-const EM_OVERVIEW_DASHBOARD: V2Card[] = [
-    { kind: "stat", label: "Total Spend (MTD)", value: "$182K" },
-    { kind: "stat", label: "Pending Reimbursements", value: "24" },
-    { kind: "stat", label: "Active Alerts", value: "3" },
-    { kind: "stat", label: "Compliance Score", value: "94%" },
-]
 const EM_TREND_CARDS: V2Card[] = [
     { kind: "stat", label: "6-Month Spend", value: "$412K" },
     { kind: "stat", label: "MoM Change", value: "+8%" },
@@ -637,6 +651,11 @@ function v2ChipsFor(step: V2StepId): Chip[] {
     if (step === "start") return V2_TOP_CHIPS
     if (step === "tj-role") return TJ_ROLE_CHIPS
     if (step === "tj-destination") return TJ_DESTINATION_CHIPS
+    // tj-destination-continent has no chips — it's rendered as a <select>
+    // dropdown instead (see chatContent), and tj-destination-country is
+    // free-text only.
+    if (step === "tj-destination-continent") return []
+    if (step === "tj-destination-country") return []
     if (step === "tj-purpose") return TJ_PURPOSE_CHIPS
     if (step === "tj-travelers") return TJ_TRAVELERS_CHIPS
     if (step === "tj-action") return TJ_ACTION_CHIPS
@@ -770,6 +789,42 @@ function AnimatedPlaceholder({ text, show }: { text: string; show: boolean }) {
         <span className="v4-assistant__placeholder-fx" aria-hidden="true">
             {text}<span className="v4-assistant__caret" />
         </span>
+    )
+}
+
+// The "Other destinations" chip IS the continent picker — opening it drops
+// a small menu right there in the chip column, rather than swapping the
+// whole hero over to a separate "which continent?" screen for what's a
+// single extra choice. Custom listbox, not a native <select>: the native
+// popup renders as the browser's own unstyled menu (system font, square
+// corners, platform blue highlight) with no way to skin it to match chips.
+function DestinationChip({ q, open, setOpen, menuRef, onPick }: {
+    q: Chip
+    open: boolean
+    setOpen: (v: boolean | ((o: boolean) => boolean)) => void
+    menuRef: RefObject<HTMLDivElement | null>
+    onPick: (continent: string) => void
+}) {
+    return (
+        <div className="v4-destination-chip" ref={menuRef}>
+            <button type="button" className="v4-destination-chip__trigger"
+                aria-haspopup="listbox" aria-expanded={open}
+                onClick={() => setOpen(o => !o)}>
+                {q.icon}<span>{q.label}</span>
+                <span className={"v4-destination-chip__chevron" + (open ? " is-open" : "")} aria-hidden="true">{CHEVRON_DOWN_ICON}</span>
+            </button>
+            {open && (
+                <ul className="v4-destination-chip__menu" role="listbox" aria-label="Which continent?">
+                    {CONTINENT_CHIPS.map(c => (
+                        <li key={c.label} role="option" aria-selected={false}>
+                            <button type="button" onClick={() => { setOpen(false); onPick(c.label) }}>
+                                {c.icon}<span>{c.label}</span>
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
     )
 }
 
@@ -970,7 +1025,7 @@ function splitChips(chips: Chip[]): [Chip[], Chip[]] {
 // convention as the rest of the demo script, rendered under V2's reply
 // bubble for the chips whose reply is a real booking result rather than
 // just a line of copy (see V2_REPLIES above).
-function V2ResultCard({ card, index }: { card: V2Card; index: number }) {
+function V2ResultCard({ card, index, onImageClick }: { card: V2Card; index: number; onImageClick?: () => void }) {
     const reduce = useReducedMotion()
     const motionProps = reduce ? {} : {
         initial: { opacity: 0, y: 12, scale: 0.98 },
@@ -1015,6 +1070,15 @@ function V2ResultCard({ card, index }: { card: V2Card; index: number }) {
             </motion.div>
         )
     }
+    if (card.kind === "image") {
+        return (
+            <motion.button type="button" className="v4-result-card v4-result-card--image" {...motionProps}
+                onClick={onImageClick} aria-haspopup="dialog">
+                <img src={card.src} alt={card.alt} />
+                <span className="v4-result-card__image-hint">Tap to view</span>
+            </motion.button>
+        )
+    }
     // "stat" — a dashboard-style number (active trips, savings, compliance
     // score, ...) for the Travel Management / Admin View branches, where the
     // doc's replies are metrics rather than a bookable result.
@@ -1044,7 +1108,14 @@ export function AvatarSpotlight() {
     const [step, setStep] = useState<TravellerStepId>("start")
     const [destination, setDestination] = useState("")
     const [v2Step, setV2Step] = useState<V2StepId>("start")
-    const [journey, setJourney] = useState<{ role?: string; destination?: string }>({})
+    const [journey, setJourney] = useState<{ role?: string; destination?: string; continent?: string }>({})
+    const [continentOpen, setContinentOpen] = useState(false)
+    // Which sample-dashboard image (if any) the "tap to view" modal is
+    // showing — null when closed. Holds the image itself, not just an
+    // open/closed flag, so the modal always shows whichever screenshot the
+    // visitor actually tapped (finance overview vs. admin overview).
+    const [dashboardModalImage, setDashboardModalImage] = useState<{ src: string; alt: string } | null>(null)
+    const continentRef = useRef<HTMLDivElement>(null)
     const [demoAnswers, setDemoAnswers] = useState<Partial<Record<DemoField, string>>>({})
     const [caption, setCaption] = useState(isV2 ? V2_START_CAPTION : TRAVELLER_STEPS.start.caption)
     const [value, setValue] = useState("")
@@ -1062,12 +1133,40 @@ export function AvatarSpotlight() {
 
     useEffect(() => () => window.clearTimeout(timer.current), [])
 
+    // Continent dropdown — closes on an outside click or Escape, same as
+    // any native <select> would, since it's now a custom listbox instead
+    // of one.
+    useEffect(() => {
+        if (!continentOpen) return
+        const onPointerDown = (e: PointerEvent) => {
+            if (continentRef.current && !continentRef.current.contains(e.target as Node)) setContinentOpen(false)
+        }
+        const onKeyDown = (e: KeyboardEvent) => { if (e.key === "Escape") setContinentOpen(false) }
+        document.addEventListener("pointerdown", onPointerDown)
+        document.addEventListener("keydown", onKeyDown)
+        return () => {
+            document.removeEventListener("pointerdown", onPointerDown)
+            document.removeEventListener("keydown", onKeyDown)
+        }
+    }, [continentOpen])
+
+    // Dashboard sample-image modal — Escape closes it, same as the click-
+    // outside-the-panel handler already wired on the backdrop.
+    useEffect(() => {
+        if (!dashboardModalImage) return
+        const onKeyDown = (e: KeyboardEvent) => { if (e.key === "Escape") setDashboardModalImage(null) }
+        document.addEventListener("keydown", onKeyDown)
+        return () => document.removeEventListener("keydown", onKeyDown)
+    }, [dashboardModalImage])
+
     const reset = () => {
         window.clearTimeout(timer.current)
         setStatus("idle")
         setFiller("")
         setValue("")
         setCards([])
+        setContinentOpen(false)
+        setDashboardModalImage(null)
         if (isV2) {
             setV2Step("start")
             setJourney({})
@@ -1108,7 +1207,7 @@ export function AvatarSpotlight() {
             if (label === "Administrator View") {
                 setV2Step("av-start")
                 setCaption(AV_PROMPTS["av-start"])
-                setCards([])
+                setCards([{ kind: "image", src: adminDashboardImg, alt: "Miraee admin dashboard overview" }])
                 return
             }
             const reply = V2_REPLIES[label]
@@ -1139,6 +1238,22 @@ export function AvatarSpotlight() {
     // have chip-specific behaviour (diverting to the demo flow, restarting
     // the journey, etc.) so they're handled explicitly rather than falling
     // through to TJ_NEXT_STEP.
+    // Shared by picking one of the four destination chips AND by typing a
+    // city once "Other destinations" → a continent → free text has narrowed
+    // it down — same acknowledgement, same advance to tj-purpose, so a
+    // typed destination isn't a second-class path through the journey.
+    const confirmDestination = (destination: string) => {
+        setJourney(j => ({ ...j, destination }))
+        setStatus("thinking")
+        setFiller(`Good choice. Quick note — I can show you local pricing alongside your home currency so there's no confusion, check if you need a visa, and it's currently ${seasonNow()} so I'd suggest you pack accordingly.`)
+        window.clearTimeout(timer.current)
+        timer.current = window.setTimeout(() => {
+            setV2Step("tj-purpose")
+            setCaption(TJ_PROMPTS["tj-purpose"])
+            setStatus("idle")
+        }, 750)
+    }
+
     const tjChoose = (step: TJStepId, label: string) => {
         if (step === "tj-role") {
             setJourney(j => ({ ...j, role: label }))
@@ -1153,15 +1268,18 @@ export function AvatarSpotlight() {
             return
         }
         if (step === "tj-destination") {
-            setJourney(j => ({ ...j, destination: label }))
-            setStatus("thinking")
-            setFiller(`Good choice. Quick note — I can show you local pricing alongside your home currency so there's no confusion, check if you need a visa, and it's currently ${seasonNow()} so I'd suggest you pack accordingly.`)
-            window.clearTimeout(timer.current)
-            timer.current = window.setTimeout(() => {
-                setV2Step("tj-purpose")
-                setCaption(TJ_PROMPTS["tj-purpose"])
-                setStatus("idle")
-            }, 750)
+            // "Other destinations" isn't dispatched here — that chip is a
+            // DestinationChip (see below) that opens its own continent
+            // menu in place and calls tjChoose("tj-destination-continent",
+            // …) directly on pick, without ever routing through this step.
+            confirmDestination(label)
+            return
+        }
+        if (step === "tj-destination-continent") {
+            setJourney(j => ({ ...j, continent: label }))
+            setV2Step("tj-destination-country")
+            setCaption(`Where in ${label} would you like to go?`)
+            setCards([])
             return
         }
         if (step === "tj-action") {
@@ -1171,10 +1289,10 @@ export function AvatarSpotlight() {
                 setCards([])
                 return
             }
-            // "For Finance teams" (and "Plan a trip"/"Book a flight"/"Find a
-            // hotel near my meeting") all continue straight into hotel prefs
-            // per the doc — "Book a demo" is the only chip here that
-            // branches away from the journey.
+            // "Plan a trip"/"Book a flight"/"Find a hotel near my meeting"
+            // all continue straight into hotel prefs per the doc — "Book a
+            // demo" is the only chip here that branches away from the
+            // journey.
             setV2Step("tj-hotel")
             setCaption(TJ_PROMPTS["tj-hotel"])
             return
@@ -1376,10 +1494,12 @@ export function AvatarSpotlight() {
                 return
             }
             // Overview - Dashboard: doc has no further question, just the
-            // snapshot and a wrap-up.
+            // snapshot and a wrap-up. A real screenshot of the dashboard
+            // instead of stat cards — tapping it opens the "this is a
+            // sample" disclosure (see dashboardModalImage).
             setV2Step("em-overview-wrap")
             setCaption(EM_PROMPTS["em-overview-wrap"])
-            setCards(EM_OVERVIEW_DASHBOARD)
+            setCards([{ kind: "image", src: financeDashboardImg, alt: "Miraee finance dashboard overview" }])
             return
         }
 
@@ -1633,6 +1753,15 @@ export function AvatarSpotlight() {
         setValue("")
         setStarted(true)
 
+        // "Other destinations" → continent → typed city: the one place in
+        // the Traveler Journey where free text (not a chip) IS the expected
+        // answer, so it feeds the same confirmDestination() ack + advance
+        // that clicking New York/Dubai/Singapore uses.
+        if (v2Step === "tj-destination-country") {
+            confirmDestination(trimmed)
+            return
+        }
+
         if (v2Step.startsWith("demo-") && v2Step !== "demo-done") {
             const field = v2Step.slice(5) as DemoField
             const answers = { ...demoAnswers, [field]: trimmed }
@@ -1776,7 +1905,10 @@ export function AvatarSpotlight() {
                 stays anchored close to the portrait instead of stretching
                 the chips out to the viewport edges on wide screens. */}
             <div className="v4-assistant__chips v4-avatar-spotlight__chips">
-                {leftChips.map(q => (
+                {leftChips.map(q => q.label === "Other destinations" && v2Step === "tj-destination" ? (
+                    <DestinationChip key={q.label} q={q} open={continentOpen} setOpen={setContinentOpen}
+                        menuRef={continentRef} onPick={c => tjChoose("tj-destination-continent", c)} />
+                ) : (
                     <button type="button" key={q.label} onClick={() => choose(q.label)}>
                         {q.icon}<span>{q.label}</span>
                     </button>
@@ -1795,7 +1927,10 @@ export function AvatarSpotlight() {
 
                 {isV2 && cards.length > 0 && (
                     <div className="v4-result-cards">
-                        {cards.map((c, i) => <V2ResultCard key={i} card={c} index={i} />)}
+                        {cards.map((c, i) => (
+                            <V2ResultCard key={i} card={c} index={i}
+                                onImageClick={c.kind === "image" ? () => setDashboardModalImage({ src: c.src, alt: c.alt }) : undefined} />
+                        ))}
                     </div>
                 )}
 
@@ -1817,7 +1952,10 @@ export function AvatarSpotlight() {
             </div>
 
             <div className="v4-assistant__chips v4-assistant__chips--right v4-avatar-spotlight__chips">
-                {rightChips.map(q => (
+                {rightChips.map(q => q.label === "Other destinations" && v2Step === "tj-destination" ? (
+                    <DestinationChip key={q.label} q={q} open={continentOpen} setOpen={setContinentOpen}
+                        menuRef={continentRef} onPick={c => tjChoose("tj-destination-continent", c)} />
+                ) : (
                     <button type="button" key={q.label} onClick={() => choose(q.label)}>
                         {q.icon}<span>{q.label}</span>
                     </button>
@@ -1875,5 +2013,23 @@ export function AvatarSpotlight() {
         )
     }
 
-    return <section className="v4-avatar-spotlight v4-hero-fade-in">{chatContent}</section>
+    return (
+        <>
+            <section className="v4-avatar-spotlight v4-hero-fade-in">{chatContent}</section>
+            {dashboardModalImage && (
+                <div className="v4-dashboard-modal" role="presentation" onClick={() => setDashboardModalImage(null)}>
+                    <div className="v4-dashboard-modal__panel" role="dialog" aria-modal="true"
+                        aria-label="Sample dashboard notice" onClick={e => e.stopPropagation()}>
+                        <button type="button" className="v4-dashboard-modal__close" aria-label="Close"
+                            onClick={() => setDashboardModalImage(null)}>{CLOSE_ICON}</button>
+                        <img className="v4-dashboard-modal__img" src={dashboardModalImage.src} alt={dashboardModalImage.alt} />
+                        <p className="v4-dashboard-modal__text">
+                            This is a sample view of the dashboard. If you'd like to experience the Miraee App, contact our sales team.
+                        </p>
+                        <a className="v4-dashboard-modal__cta" href="/book-a-demo">Contact sales</a>
+                    </div>
+                </div>
+            )}
+        </>
+    )
 }
