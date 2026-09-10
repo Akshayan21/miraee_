@@ -15,6 +15,7 @@
 
 .v4-site {
   --v4-shell: 1200px;
+  --m-paper: #FFFFFF;
   --v4-panel-bg: var(--m-surface);
   --v4-panel-radius: 18px;
   --v4-panel-shadow: 0 24px 60px rgba(69, 14, 20, .14), 0 1px 0 rgba(255, 255, 255, .6) inset;
@@ -97,7 +98,13 @@
 .v4-nav__actions > a[href^="https"] { color: var(--m-muted); font-size: 13px; font-weight: 600; text-decoration: none; white-space: nowrap; }
 .v4-nav__actions > a[href^="https"]:hover { color: var(--m-maroon); }
 .v4-nav__cta { display: inline-flex; align-items: center; padding: 11px 20px; border-radius: 100px; background: var(--m-orange); color: #fffaf6; font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap; }
-.v4-nav__cta:hover { background: var(--m-maroon); color: #fffaf6; }
+/* a.v4-nav__cta, not just the class — .v4-site a:where(...) { color:inherit }
+   (V4.css:42) has a higher-specificity element+class selector (:where()
+   itself contributes nothing, but "a" does), so a plain single-class rule
+   here loses and the button inherits the nav's near-black text color
+   instead of using its own white. */
+a.v4-nav__cta { color: #fffaf6; }
+a.v4-nav__cta:hover { background: var(--m-maroon); color: #fffaf6; }
 
 .v4-nav__version { display: flex; align-items: center; gap: 2px; padding: 3px; border: 1px solid rgba(69, 14, 20, .1); border-radius: 100px; background: rgba(69, 14, 20, .035); }
 .v4-nav__version a { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 26px; padding: 0 4px; border-radius: 100px; color: var(--m-muted); font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; text-decoration: none; transition: background .2s var(--m-ease), color .2s var(--m-ease); }
@@ -738,6 +745,9 @@
 .v4-foot__inner { display: grid; grid-template-columns: minmax(220px, 1fr) 3fr; gap: 40px; width: min(100% - 40px, var(--v4-shell)); margin-inline: auto; }
 .v4-foot__brand p { margin: 16px 0 20px; font-size: .9rem; max-width: 30ch; }
 .v4-foot__cta { display: inline-flex; padding: 11px 20px; border-radius: 10px; background: var(--m-orange); color: #fffaf6; font-size: 13.5px; font-weight: 700; text-decoration: none; }
+/* Same specificity fix as a.v4-nav__cta above — a single-class rule loses
+   to .v4-site a:where(...) { color:inherit } (V4.css:42). */
+a.v4-foot__cta { color: #fffaf6; }
 .v4-foot__cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 28px; }
 .v4-foot__col h2 { margin: 0 0 12px; color: var(--m-muted); font-size: 10.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .v4-foot__col ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 7px; }
@@ -842,7 +852,7 @@
 .v4r-view-card__dots { display: flex; gap: 6px; }
 .v4r-view-card__dots span { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
 .v4r-view-card__url { flex: 1; padding: 4px 10px; border-radius: 6px; background: #fff; font-size: 11px; color: var(--m-muted); }
-.v4r-view-card__shot { position: relative; flex: 1; overflow: hidden; background: #F4F1EC; }
+.v4r-view-card__shot { position: relative; flex: 1; overflow: hidden; background: #FFFFFF; }
 .v4r-view-card__shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center top; }
 .v4r-view-card--dark { background: var(--m-maroon); }
 .v4r-view-card--dark .v4r-view-card__tag { background: rgba(251,246,242,.15); color: #FBF6F2; }
@@ -2440,6 +2450,88 @@
   white-space: pre-line;
 }
 
+/* "Other destinations" — the chip itself opens a continent menu right
+   there in the chip column, rather than swapping the whole hero over to a
+   separate "which continent?" screen. A custom listbox, not a native
+   <select>: the native popup is the browser's own unstyled menu (system
+   font, square corners, platform blue highlight) with no way to skin it to
+   match the rest of the hero. */
+.v4-destination-chip { position: relative; width: 100%; }
+/* Deliberately NOT re-declaring padding/border-radius/background/shadow
+   here — the trigger is a real <button> inside .v4-assistant__chips, so it
+   already inherits the light-hero rounded-rect chip look from
+   `.v4-hero-video--light .v4-assistant__chips button` below, and should:
+   this needs to read as "one of the destination chips", just with a
+   chevron, not a visually distinct control. */
+.v4-destination-chip__trigger { display: flex; align-items: center; cursor: pointer; }
+/* button.v4-destination-chip__trigger, not just the class, so this beats
+   the site-wide .v4-site :is(a,button):focus-visible rule (V4.css:43) on
+   specificity — that rule's :is(a,button) counts as an element selector,
+   which otherwise outranks a plain two-class selector and wins the black
+   3px outline back, rendering as a thick ring overlapping the menu right
+   below the trigger (read as the dropdown's first row being clipped). */
+button.v4-destination-chip__trigger:focus-visible {
+  outline: none;
+  border-color: var(--m-orange);
+  box-shadow: 0 0 0 3px rgba(229, 86, 2, .32);
+}
+.v4-destination-chip__chevron { display: inline-flex; margin-left: auto; color: var(--m-orange); transition: transform .2s var(--m-ease); }
+.v4-destination-chip__chevron.is-open { transform: rotate(180deg); }
+
+/* The menu — same paper/hairline/shadow language as the chip cards and
+   result cards elsewhere in the hero, so it reads as part of the same
+   system instead of a foreign popup dropped on top of it. */
+.v4-destination-chip__menu {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 8px);
+  left: 0; right: 0;
+  min-width: 220px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid var(--m-line);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 20px 46px rgba(69, 14, 20, .12);
+  max-height: 280px;
+  overflow-y: auto;
+}
+.v4-destination-chip__menu li { display: block; }
+/* .v4-hero-video--light .v4-destination-chip__menu button, not just
+   .v4-destination-chip__menu button — these buttons are also descendants
+   of .v4-assistant__chips, so without the extra class here the generic
+   `.v4-hero-video--light .v4-assistant__chips button` rule (higher
+   specificity) would win and turn every menu row into a full rounded-rect
+   chip card instead of a compact list item. */
+.v4-hero-video--light .v4-destination-chip__menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--m-maroon);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background .15s var(--m-ease), color .15s var(--m-ease);
+}
+.v4-destination-chip__menu button svg { flex-shrink: 0; color: var(--m-orange); }
+.v4-hero-video--light .v4-destination-chip__menu button:hover,
+.v4-hero-video--light .v4-destination-chip__menu button:focus-visible {
+  outline: none;
+  border-color: transparent;
+  transform: none;
+  background: color-mix(in srgb, var(--m-orange) 8%, transparent);
+  color: var(--m-orange);
+}
+
 /* One or more booking-result cards under a reply — same visual language as
    the chip cards (rounded rect, paper surface, hairline border) so the
    whole hero reads as one system. */
@@ -2448,7 +2540,7 @@
   flex-direction: column;
   gap: 10px;
   width: 100%;
-  max-width: 380px;
+  max-width: 420px;
   margin: 0 auto 20px;
 }
 .v4-result-card {
@@ -2479,6 +2571,99 @@
 .v4-result-card--restaurant { --rc-accent: var(--m-maroon); }
 .v4-result-card--stat { --rc-accent: #4a7fd9; }
 .v4-result-card__stat-value { font-size: 20px; font-weight: 800; color: var(--rc-accent); }
+
+/* The dashboard screenshot card — full-bleed image, not the usual
+   icon+text row, so it drops the accent rail/padding/cursor:default the
+   other result cards use and behaves as a real button (it opens the
+   sample-dashboard modal on tap). */
+.v4-result-card--image {
+  display: block;
+  width: 100%;
+  padding: 0;
+  cursor: pointer;
+  border: none;
+  font: inherit;
+  text-align: left;
+}
+.v4-result-card--image::before { display: none; }
+.v4-result-card--image img { display: block; width: 100%; height: auto; }
+.v4-result-card__image-hint {
+  position: absolute;
+  right: 10px; bottom: 10px;
+  padding: 5px 10px;
+  border-radius: 100px;
+  background: rgba(15, 4, 7, .68);
+  color: #fffaf6;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Tapping the dashboard screenshot opens this — a plain scrim + centered
+   panel (not framer-motion) since it's a one-off disclosure, not part of
+   the scripted chat flow the rest of this file animates. */
+.v4-dashboard-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 4, 7, .55);
+  backdrop-filter: blur(3px);
+  animation: v4-modal-fade .2s var(--m-ease);
+}
+@keyframes v4-modal-fade { from { opacity: 0; } to { opacity: 1; } }
+.v4-dashboard-modal__panel {
+  position: relative;
+  width: min(600px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 40px 90px rgba(15, 4, 7, .35);
+  text-align: center;
+}
+.v4-dashboard-modal__close {
+  position: absolute;
+  top: 14px; right: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border: 1px solid var(--m-line);
+  border-radius: 50%;
+  background: var(--m-paper);
+  color: var(--m-maroon);
+  cursor: pointer;
+  transition: border-color .2s var(--m-ease), color .2s var(--m-ease);
+}
+.v4-dashboard-modal__close:hover { border-color: var(--m-orange); color: var(--m-orange); }
+.v4-dashboard-modal__close:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(229, 86, 2, .32); }
+.v4-dashboard-modal__img { display: block; width: 100%; height: auto; border-radius: 14px; margin-bottom: 18px; }
+.v4-dashboard-modal__text { margin: 0 0 18px; color: var(--m-muted); font-size: 14.5px; line-height: 1.6; }
+.v4-dashboard-modal__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 28px;
+  border-radius: 100px;
+  background: var(--m-orange);
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background .2s var(--m-ease);
+}
+/* a.v4-dashboard-modal__cta, not just the class — see the a.v4-nav__cta
+   comment above for why a plain single-class rule loses the color fight
+   against .v4-site a:where(...) { color:inherit }. */
+a.v4-dashboard-modal__cta { color: #fffaf6; }
+a.v4-dashboard-modal__cta:hover { background: #c74600; }
+.v4-dashboard-modal__cta:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(229, 86, 2, .32); }
+@media (prefers-reduced-motion: reduce) {
+  .v4-dashboard-modal { animation: none; }
+}
 .v4-result-card__icon {
   display: flex;
   align-items: center;
