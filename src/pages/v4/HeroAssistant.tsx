@@ -1116,6 +1116,7 @@ export function AvatarSpotlight() {
     // visitor actually tapped (finance overview vs. admin overview).
     const [dashboardModalImage, setDashboardModalImage] = useState<{ src: string; alt: string } | null>(null)
     const continentRef = useRef<HTMLDivElement>(null)
+    const coinRef = useRef<HTMLDivElement>(null)
     const [demoAnswers, setDemoAnswers] = useState<Partial<Record<DemoField, string>>>({})
     const [caption, setCaption] = useState(isV2 ? V2_START_CAPTION : TRAVELLER_STEPS.start.caption)
     const [value, setValue] = useState("")
@@ -1258,7 +1259,7 @@ export function AvatarSpotlight() {
         if (step === "tj-role") {
             setJourney(j => ({ ...j, role: label }))
             setStatus("thinking")
-            setFiller(`Got it. I'll only show you flights and hotels your company allows at ${label} level, so you never accidentally book something out of policy.`)
+            setFiller("Got it. I'll only show you flights and hotels which are within policy.")
             window.clearTimeout(timer.current)
             timer.current = window.setTimeout(() => {
                 setV2Step("tj-destination")
@@ -1916,11 +1917,43 @@ export function AvatarSpotlight() {
             </div>
 
             <div className="v4-avatar-spotlight__stage">
-                <div className="v4-assistant__frame v4-assistant__frame--lg" aria-hidden="true">
-                    <motion.img className="v4-assistant__photo--lg" src={avatarImg} alt=""
-                        animate={reduce ? undefined : { scale: [1, 1.012, 1] }}
-                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} />
-                    <span className="v4-assistant__frame-glow" aria-hidden="true" />
+                {/* "Coin" hover treatment (vilendesign.com-style): a stack of
+                    faded echo layers behind the portrait that separate further
+                    apart on hover, plus a subtle cursor-driven 3D tilt on the
+                    face itself. Purely decorative (aria-hidden) and inert
+                    under reduced motion — the tilt only ever moves if the
+                    pointer actually moves, so it never animates on its own. */}
+                <div
+                    className="v4-coin"
+                    ref={coinRef}
+                    aria-hidden="true"
+                    onMouseMove={e => {
+                        if (reduce) return
+                        const el = coinRef.current
+                        if (!el) return
+                        const rect = el.getBoundingClientRect()
+                        const px = (e.clientX - rect.left) / rect.width - 0.5
+                        const py = (e.clientY - rect.top) / rect.height - 0.5
+                        el.style.setProperty("--coin-rx", (py * -10).toFixed(2) + "deg")
+                        el.style.setProperty("--coin-ry", (px * 12).toFixed(2) + "deg")
+                    }}
+                    onMouseLeave={() => {
+                        const el = coinRef.current
+                        if (!el) return
+                        el.style.setProperty("--coin-rx", "0deg")
+                        el.style.setProperty("--coin-ry", "0deg")
+                    }}
+                >
+                    <span className="v4-coin__echo v4-coin__echo--3" />
+                    <span className="v4-coin__echo v4-coin__echo--2" />
+                    <span className="v4-coin__echo v4-coin__echo--1" />
+                    <div className="v4-assistant__frame v4-assistant__frame--lg v4-coin__face">
+                        <motion.img className="v4-assistant__photo--lg" src={avatarImg} alt=""
+                            animate={reduce ? undefined : { scale: [1, 1.012, 1] }}
+                            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} />
+                        <span className="v4-assistant__frame-glow" />
+                        <span className="v4-coin__sheen" />
+                    </div>
                 </div>
 
                 <p className="v4-avatar-spotlight__caption" aria-live="polite">{captionEl}</p>
@@ -1978,7 +2011,6 @@ export function AvatarSpotlight() {
             <section className="v4-hero-landing v4-hero-fade-in">
                 <div className="v4-hero-landing__avatar-wrap">
                     <img className="v4-hero-landing__avatar" src={avatarImg} alt="" />
-                    <span className="v4-hero-landing__status" aria-hidden="true" />
                 </div>
                 <h1 className="v4-hero-landing__title">Hi, I'm Miraee 👋 Hope you're doing well!</h1>
                 <p className="v4-hero-landing__subtitle">I help make business travel simple for travelers, travel managers, and expense managers. How would you like to experience Miraee today?</p>
